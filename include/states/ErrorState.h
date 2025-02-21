@@ -9,11 +9,11 @@ private:
     ErrorState(Device* device) 
         : DeviceState(device, StateIdentifier::ERROR_STATE)
         , errorCode(ErrorCode::UNKNOWN_ERROR)
-        , log(Logger::getInstance())
+        , log(LogManager::getInstance())
         , mqttManager(MQTTManager::getInstance())
         , configManager(ConfigManager::getInstance()) {};
     
-    Logger& log;
+    LogManager& log;
     ConfigManager& configManager;
     MQTTManager& mqttManager;
 

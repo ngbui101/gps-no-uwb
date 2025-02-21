@@ -3,18 +3,20 @@
 
 #include <Device.h>
 #include <WiFi.h>
-#include <Logger.h>
+#include "LogManager.h"
 #include "WiFiManager.h"
 #include "MQTTManager.h"
 #include "states/ErrorState.h"
 #include "states/ActionState.h"
 #include "states/UpdateState.h"
 #include "ErrorCodes.h"
+#include "BluetoothManager.h"
 
 enum class SetupPhase {
     INIT,
     WIFI_CONNECTING,
     MQTT_CONNECTING,
+    BLUETOOTH_INIT,
     COMPLETED,
     FAILED,
     __DELIMITER__
@@ -24,15 +26,17 @@ class SetupState : public DeviceState {
 private:
     SetupState(Device* device) 
         : DeviceState(device, StateIdentifier::SETUP_STATE)
-        , log(Logger::getInstance())
+        , log(LogManager::getInstance())
         , configManager(ConfigManager::getInstance())
         , wifiManager(WiFiManager::getInstance())
-        , mqttManager(MQTTManager::getInstance()) {};
+        , mqttManager(MQTTManager::getInstance())
+        , bluetoothManager(BluetoothManager::getInstance()) {};
 
-    Logger& log;
+    LogManager& log;
     ConfigManager& configManager;
     WiFiManager& wifiManager;
     MQTTManager& mqttManager;
+    BluetoothManager& bluetoothManager;
 
     static const uint32_t SETUP_TIMEOUT = 60000;
     SetupPhase currentPhase;

@@ -8,10 +8,10 @@ class IdleState : public DeviceState {
 private:
     IdleState(Device* device) 
         : DeviceState(device, StateIdentifier::IDLE_STATE)
-        , log(Logger::getInstance())
+        , log(LogManager::getInstance())
         , configManager(ConfigManager::getInstance()) {};
     
-    Logger& log;
+    LogManager& log;
     ConfigManager& configManager;
 
 public:

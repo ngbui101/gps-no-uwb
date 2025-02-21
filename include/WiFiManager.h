@@ -3,7 +3,7 @@
 
 #include <WiFi.h>
 #include "ConfigManager.h"
-#include "Logger.h"
+#include "LogManager.h"
 
 enum class WiFiStatus {
     UNINITIALIZED,
@@ -23,14 +23,14 @@ private:
         , lastAttempt(0)
         , connectionAttempts(0)
         , configManager(ConfigManager::getInstance())
-        , log(Logger::getInstance()) {}
+        , log(LogManager::getInstance()) {}
 
     WiFiStatus status;
     uint32_t lastAttempt;
     uint8_t connectionAttempts;
 
     ConfigManager& configManager;
-    Logger& log;
+    LogManager& log;
 
     const char *getWifiStatusString(WiFiStatus status);
     constexpr size_t getWifiStatusCount() {return static_cast<size_t>(WiFiStatus::__DELIMITER__);};

@@ -34,6 +34,11 @@ enum class ErrorCode {
     // Recovery/Update Errors (50-59)
     RECOVERY_FAILED = 50,
     UPDATE_FAILED = 51,
+
+    // Bluetooth Errors (60-69)
+    BLUETOOTH_INIT_FAILED = 60,
+    BLUETOOTH_SERVER_FAILED = 61,
+    BLUETOOTH_CLIENT_FAILED = 62,
     
     UNKNOWN_ERROR = 99,
     __DELIMITER__
@@ -63,7 +68,10 @@ namespace ErrorUtils {
     inline bool isRecoveryError(ErrorCode code) {
         return static_cast<int>(code) >= 50 && static_cast<int>(code) < 60;
     }
-}
-
+    
+    inline bool isBluetoothError(ErrorCode code) {
+        return static_cast<int>(code) >= 60 && static_cast<int>(code) < 70;
+    }
+};
 
 #endif

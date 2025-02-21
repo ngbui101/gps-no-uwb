@@ -6,7 +6,7 @@
 #include <map>
 #include <vector>
 #include "ConfigManager.h"
-#include "Logger.h"
+#include "LogManager.h"
 
 typedef std::function<void(char*, uint8_t*, unsigned int)> MQTTCallback;
 
@@ -21,10 +21,10 @@ private:
         : client(espClient)
         , initialized(false)
         , lastAttempt(0)
-        , log(Logger::getInstance())
+        , log(LogManager::getInstance())
         , configManager(ConfigManager::getInstance()) {}
 
-    Logger& log;
+    LogManager& log;
     ConfigManager& configManager;
 
     WiFiClient espClient;

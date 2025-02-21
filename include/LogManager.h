@@ -13,9 +13,9 @@ enum class LogLevel {
     __DELIMITER__
 };
 
-class Logger {
+class LogManager {
 private:
-    Logger () 
+    LogManager () 
         : configManager(ConfigManager::getInstance())
         , deviceId(configManager.getRuntimeConfig().device.name)
         , logLevel(static_cast<LogLevel>(configManager.getRuntimeConfig().logging.logLevel))
@@ -32,11 +32,11 @@ private:
     constexpr size_t getLogLevelCount() {return static_cast<size_t>(LogLevel::__DELIMITER__);};
 
 public:
-    Logger(const Logger&) = delete;
-    void operator=(const Logger&) = delete;
+    LogManager(const LogManager&) = delete;
+    void operator=(const LogManager&) = delete;
 
-    static Logger& getInstance() {
-        static Logger instance;
+    static LogManager& getInstance() {
+        static LogManager instance;
         return instance;
     }
 

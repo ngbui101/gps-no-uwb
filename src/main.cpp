@@ -2,13 +2,13 @@
 #include <Wire.h>
 #include <ConfigManager.h>
 #include <Device.h>
-#include <Logger.h>
+#include <LogManager.h>
 #include <states/IdleState.h>
 
 void setup() {
   Serial.begin(MONITOR_SPEED);
   Serial.println(F("###################################################"));
-  Serial.println(F("(c) 2023-2024 Hochschule Bochum GPS:NO - Martin Peth"));
+  Serial.println(F("(c) 2023-2024 Hochschule Bochum GPS:NO - Martin Peth, Niklas Schütrumpf, Felix Schwarz"));
   Serial.printf("Compiled with c++ version %s", __VERSION__);
   Serial.println();
   Serial.printf("Version v--- @--- %s at %s", __DATE__, __TIME__);
@@ -17,7 +17,7 @@ void setup() {
 
   ConfigManager& configManager = ConfigManager::getInstance();
   RuntimeConfig& config = configManager.getRuntimeConfig();
-  Logger& log = Logger::getInstance();
+  LogManager& log = LogManager::getInstance();
   Device& device = Device::getInstance();
 
   if(!configManager.begin()) {

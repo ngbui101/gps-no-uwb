@@ -9,6 +9,17 @@ void ConfigManager::loadDefaults() {
     mac.toCharArray(config.device.macAddress, sizeof(config.device.macAddress));
     config.device.macAddress[sizeof(config.device.macAddress) - 1] = '\0';
 
+    String modifiedMac = mac;
+    modifiedMac.replace(":", "");
+    
+    snprintf(config.bluetooth.serviceUUID, sizeof(config.bluetooth.serviceUUID),
+             "%s-0000-5000-8000-000000000000",
+             modifiedMac.c_str());
+
+    snprintf(config.bluetooth.charUUID, sizeof(config.bluetooth.charUUID),
+             "%s-0000-5000-8000-000000000001",
+             modifiedMac.c_str());
+
     String hash = calculateHash(&config);
     strncpy(config.hash, hash.c_str(), sizeof(config.hash) - 1);
     config.hash[sizeof(config.hash) - 1] = '\0';
@@ -40,6 +51,10 @@ void ConfigManager::print(RuntimeConfig* config) {
     Serial.printf("Update API Token: %s\n", config->update.apiToken);
     Serial.printf("Update Interval: %d\n", config->update.interval);
     Serial.printf("Update Initial Check: %s\n", config->update.initialCheck ? "true" : "false");
+    Serial.printf("Bluetooth Service UUID: %s\n", config->bluetooth.serviceUUID);
+    Serial.printf("Bluetooth Char UUID: %s\n", config->bluetooth.charUUID);
+    Serial.printf("Bluetooth Timeout: %d\n", config->bluetooth.timeout);
+    Serial.printf("Bluetooth Max Connections: %d\n", config->bluetooth.maxConnections);
     Serial.printf("Config Hash: %s\n", config->hash);
 }
 
@@ -130,6 +145,10 @@ void ConfigManager::setConfigFromDefines(RuntimeConfig* config) {
     config->logging.allowMqttLog = LOGGING_ALLOW_MQTT_LOG;
     config->logging.logLevel = LOGGING_LEVEL;
     SAFE_STRLCPY(config->logging.mqttTopic, LOGGING_MQTT_TOPIC);
+
+    /* #### BLUETOOTH #### */
+    config->bluetooth.timeout = BLUETOOTH_TIMEOUT;
+    config->bluetooth.maxConnections = BLUETOOTH_MAX_CONNECTIONS;
 
     /* #### UPDATE #### */
     SAFE_STRLCPY(config->update.apiUrl, UPDATE_GITHUB_API_URL);

@@ -22,13 +22,13 @@ class UpdateState : public DeviceState {
 private:
     UpdateState(Device* device)
         : DeviceState(device, StateIdentifier::UPDATE_STATE)
-        , log(Logger::getInstance())
+        , log(LogManager::getInstance())
         , configManager(ConfigManager::getInstance()) 
         , mqttManager(MQTTManager::getInstance()) 
         , currentPhase(UpdatePhase::CHECK_VERSION)
         , lastUpdateCheck(0) {};
 
-        Logger& log;
+        LogManager& log;
         ConfigManager& configManager;
         MQTTManager& mqttManager;
 

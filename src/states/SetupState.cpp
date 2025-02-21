@@ -21,12 +21,27 @@ void SetupState::update() {
             break;
         case SetupPhase::MQTT_CONNECTING:
             handleMqttConnection();
+            currentPhase = SetupPhase::BLUETOOTH_INIT;
+            break;
+        case SetupPhase::BLUETOOTH_INIT:
+            if (!bluetoothManager.begin()) {
+                log.error("ActionState", "Failed to initialize BLE");
+                return;
+            }
+            
+            if (!bluetoothManager.setMode(BluetoothMode::SERVER)) {
+                log.error("ActionState", "Failed to start BLE server");
+                return;
+            }
+            
+            log.info("SetupState", "BLE server started successfully");
+            currentPhase = SetupPhase::COMPLETED;
             break;
         case SetupPhase::COMPLETED:
             mqttManager.update();
-            
-            device->changeState(UpdateState::getInstance(device));
-            //device->changeState(ActionState::getInstance(device));
+
+            //device->changeState(UpdateState::getInstance(device));
+            //evice->changeState(ActionState::getInstance(device));
             break;
         case SetupPhase::FAILED:
             handleSetupFailure();
@@ -35,10 +50,12 @@ void SetupState::update() {
             break;
     }
 
+    /*
     if (millis() - setupStateTime > SETUP_TIMEOUT) {
         log.error("SetupState", "Setup timeout reached");
         currentPhase = SetupPhase::FAILED;
     }
+    */
 }
 
 void SetupState::exit() {
@@ -71,7 +88,7 @@ void SetupState::handleWifiConnection(){
             log.info("SetupState", "WiFi connected, proceeding to MQTT setup");
             currentPhase = SetupPhase::MQTT_CONNECTING;
             break;
-            
+        
         case WiFiStatus::CONNECTION_FAILED:
         case WiFiStatus::WRONG_PASSWORD:
         case WiFiStatus::NO_SSID_AVAILABLE:
@@ -101,7 +118,6 @@ void SetupState::handleMqttConnection() {
     }
 
     subscribeDefaultTopics();
-    currentPhase = SetupPhase::COMPLETED;
 }
 
 void SetupState::subscribeDefaultTopics() {

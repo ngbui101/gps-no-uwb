@@ -1,8 +1,8 @@
-#include "Logger.h"
+#include "LogManager.h"
 
-const char* Logger::LOG_TOPIC_PREFIX = "devices";
+const char* LogManager::LOG_TOPIC_PREFIX = "devices";
 
-const char* Logger::getLogLevelString(LogLevel level) {
+const char* LogManager::getLogLevelString(LogLevel level) {
     switch (level) {
         case LogLevel::DEBUG: return "DEBUG";
         case LogLevel::INFO: return "INFO";
@@ -12,16 +12,14 @@ const char* Logger::getLogLevelString(LogLevel level) {
     }
 }
 
-bool Logger::isLogLevelEnabled(LogLevel level) {
+bool LogManager::isLogLevelEnabled(LogLevel level) {
     return static_cast<int>(level) >= static_cast<int>(logLevel);
 }
 
-void Logger::log(LogLevel level, const char* source, const char* message) {
+void LogManager::log(LogLevel level, const char* source, const char* message) {
     if (static_cast<int>(logLevel) < 0 || static_cast<int>(logLevel) > getLogLevelCount()-1) {
-        char msgBuffer[64];
-        snprintf(msgBuffer, sizeof(msgBuffer), "Invalid log level: '%d' - changing to default: INFO", logLevel);
         logLevel = LogLevel::INFO;
-        info("Logger", msgBuffer);
+        return;
     }
 
     if (!isLogLevelEnabled(level)) {
@@ -36,18 +34,18 @@ void Logger::log(LogLevel level, const char* source, const char* message) {
     Serial.println(msgBuffer);
 }
 
-void Logger::debug(const char* source, const char* message) {
+void LogManager::debug(const char* source, const char* message) {
     log(LogLevel::DEBUG, source, message);
 }
 
-void Logger::info(const char* source, const char* message) {
+void LogManager::info(const char* source, const char* message) {
     log(LogLevel::INFO, source, message);
 }
 
-void Logger::warning(const char* source, const char* message) {
+void LogManager::warning(const char* source, const char* message) {
     log(LogLevel::WARNING, source, message);
 }
 
-void Logger::error(const char* source, const char* message) {
+void LogManager::error(const char* source, const char* message) {
     log(LogLevel::ERROR, source, message);
 }

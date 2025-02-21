@@ -12,7 +12,7 @@
 #include "ConfigManager.h"
 #include "states/DeviceState.h"
 #include "MQTTManager.h"
-#include "Logger.h"
+#include "LogManager.h"
 #include <ArduinoJson.h>
 
 enum class DeviceStatus {
@@ -34,11 +34,11 @@ private:
         , lastStatusUpdate(0)
         , mqttManager(MQTTManager::getInstance())
         , configManager(ConfigManager::getInstance())
-        , log(Logger::getInstance()) {}
+        , log(LogManager::getInstance()) {}
     
     MQTTManager& mqttManager;
     ConfigManager& configManager;
-    Logger& log;
+    LogManager& log;
 
     static const size_t JSON_DOC_SIZE = 512;
     DeviceState* currentState;

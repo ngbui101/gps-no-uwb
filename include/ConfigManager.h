@@ -34,6 +34,13 @@ struct RuntimeConfig {
         char baseTopic[64];
         uint8_t maxConnectionAttempts;
     } mqtt;
+
+    struct {
+        char serviceUUID[37];
+        char charUUID[37];
+        uint32_t timeout;
+        uint8_t maxConnections;
+    } bluetooth;
     
     struct {
         uint8_t maxRecoveryAttempts;

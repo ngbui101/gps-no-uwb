@@ -7,10 +7,10 @@ class ActionState : public DeviceState {
 private:
     ActionState(Device* device) 
         : DeviceState(device, StateIdentifier::ACTION_STATE)
-        , log(Logger::getInstance())
+        , log(LogManager::getInstance())
         , configManager(ConfigManager::getInstance()) {};
     
-    Logger& log;
+    LogManager& log;
     ConfigManager& configManager;
 
 public:
