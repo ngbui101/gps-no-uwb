@@ -13,11 +13,13 @@ void Device::changeState(DeviceState& newState) {
 }
 
 void Device::update() {
-    if (currentState) {
-        currentState->update();
+    if (!currentState) {
+       return;
     }
 
     RuntimeConfig& config = configManager.getRuntimeConfig();
+
+    currentState->update();
 
     uint32_t now = millis();
     if (now - lastStatusUpdate >= config.device.statusUpdateInterval) {

@@ -1,11 +1,16 @@
 #include <Arduino.h>
 #include <Wire.h>
-#include <ConfigManager.h>
-#include <Device.h>
-#include <LogManager.h>
-#include <states/IdleState.h>
+#include "esp_system.h"
+#include "esp_log.h"
+#include "ConfigManager.h"
+#include "Device.h"
+#include "LogManager.h"
+#include "states/IdleState.h"
+
 
 void setup() {
+  esp_log_level_set("*", ESP_LOG_VERBOSE);
+
   Serial.begin(MONITOR_SPEED);
   Serial.println(F("###################################################"));
   Serial.println(F("(c) 2023-2024 Hochschule Bochum GPS:NO - Martin Peth, Niklas Schütrumpf, Felix Schwarz"));
@@ -34,9 +39,10 @@ void setup() {
   configManager.print(&configManager.getRuntimeConfig());
   Serial.println(F("###################################################"));
 
-  device.changeState(IdleState::getInstance(&device));
+  //device.changeState(IdleState::getInstance(&device));
 }
 
 void loop() {
   Device::getInstance().update();
 }
+

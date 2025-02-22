@@ -7,18 +7,36 @@
 #include "WiFi.h"
 #include "ConfigDefines.h"
 
+namespace ConfigLimits {
+    constexpr size_t CONFIG_DEVICE_NAME_MAX_LENGTH = 32;
+    constexpr size_t CONFIG_DEVICE_FIRMWARE_VERSION_MAX_LENGTH = 16;
+    constexpr size_t CONFIG_DEVICE_MAC_ADDRESS_MAX_LENGTH = 18;
+    constexpr size_t CONFIG_WIFI_SSID_MAX_LENGTH = 33;
+    constexpr size_t CONFIG_WIFI_PASSWORD_MAX_LENGTH = 64;
+    constexpr size_t CONFIG_MQTT_BROKER_MAX_LENGTH = 64;
+    constexpr size_t CONFIG_MQTT_USER_MAX_LENGTH = 32;
+    constexpr size_t CONFIG_MQTT_PASSWORD_MAX_LENGTH = 64;
+    constexpr size_t CONFIG_MQTT_BASE_TOPIC_MAX_LENGTH = 64;
+    constexpr size_t CONFIG_LOGGING_MQTT_TOPIC_MAX_LENGTH = 64;
+    constexpr size_t CONFIG_UPDATE_API_URL_MAX_LENGTH = 128;
+    constexpr size_t CONFIG_UPDATE_API_TOKEN_MAX_LENGTH = 128;
+    constexpr size_t CONFIG_BLUETOOTH_SERVICE_UUID_MAX_LENGTH = 37;
+    constexpr size_t CONFIG_BLUETOOTH_CHAR_UUID_MAX_LENGTH = 37;
+    constexpr size_t CONFIG_HASH_MAX_LENGTH = 33;
+}
+
 struct RuntimeConfig {
     struct {
-        char name[32];
-        char firmwareVersion[16];
+        char name[ConfigLimits::CONFIG_DEVICE_NAME_MAX_LENGTH];
+        char firmwareVersion[ConfigLimits::CONFIG_DEVICE_FIRMWARE_VERSION_MAX_LENGTH];
         uint64_t chipID;
-        char macAddress[18];
+        char macAddress[ConfigLimits::CONFIG_DEVICE_MAC_ADDRESS_MAX_LENGTH];
         uint32_t statusUpdateInterval;
     } device;
 
     struct {
-        char ssid[32];
-        char password[64];
+        char ssid[ConfigLimits::CONFIG_WIFI_SSID_MAX_LENGTH];
+        char password[ConfigLimits::CONFIG_WIFI_PASSWORD_MAX_LENGTH];
         bool autoReconnect;
         uint8_t maxConnectionAttempts;
         uint32_t reconnectInterval;
@@ -26,18 +44,18 @@ struct RuntimeConfig {
     } wifi;
 
     struct {
-        char broker[64];
+        char broker[ConfigLimits::CONFIG_MQTT_BROKER_MAX_LENGTH];
         uint16_t port;
-        char user[32];
-        char password[64];
+        char user[ConfigLimits::CONFIG_MQTT_USER_MAX_LENGTH];
+        char password[ConfigLimits::CONFIG_MQTT_PASSWORD_MAX_LENGTH];
         uint32_t retryInterval;
-        char baseTopic[64];
+        char baseTopic[ConfigLimits::CONFIG_MQTT_BASE_TOPIC_MAX_LENGTH];
         uint8_t maxConnectionAttempts;
     } mqtt;
 
     struct {
-        char serviceUUID[37];
-        char charUUID[37];
+        char serviceUUID[ConfigLimits::CONFIG_BLUETOOTH_SERVICE_UUID_MAX_LENGTH];
+        char charUUID[ConfigLimits::CONFIG_BLUETOOTH_CHAR_UUID_MAX_LENGTH];
         uint32_t timeout;
         uint8_t maxConnections;
     } bluetooth;
@@ -49,18 +67,27 @@ struct RuntimeConfig {
 
     struct {
         bool allowMqttLog;
-        char mqttTopic[64];
+        char mqttTopic[ConfigLimits::CONFIG_LOGGING_MQTT_TOPIC_MAX_LENGTH];
         uint8_t logLevel;
     } logging;
 
     struct {
-        char apiUrl[128];
-        char apiToken[128];
+        char apiUrl[ConfigLimits::CONFIG_UPDATE_API_URL_MAX_LENGTH];
+        char apiToken[ConfigLimits::CONFIG_UPDATE_API_TOKEN_MAX_LENGTH];
         uint32_t interval;
         bool initialCheck;
     } update;
 
-    char hash[33];
+    char hash[ConfigLimits::CONFIG_HASH_MAX_LENGTH];
+};
+
+enum class ConfigError {
+    NONE,
+    FLASH_MOUNT_FAILED,
+    FILE_NOT_FOUND,
+    READ_ERROR,
+    WRITE_ERROR,
+    VALIDATION_ERROR
 };
 
 class ConfigManager {
@@ -73,7 +100,8 @@ private:
     static constexpr const char* CONFIG_FILE = "/config.bin";
     bool initialized;
 
-    String calculateHash(RuntimeConfig* config);
+    void calculateHash(RuntimeConfig* config, char* hashBuffer, size_t hashBufferSize);
+    bool validateConfig(const RuntimeConfig* pConfig, char* buffer, size_t bufferSize);
     bool loadFromFlash();
     bool saveToFlash();
     void loadDefaults();

@@ -20,8 +20,11 @@ void ConfigManager::loadDefaults() {
              "%s-0000-5000-8000-000000000001",
              modifiedMac.c_str());
 
-    String hash = calculateHash(&config);
-    strncpy(config.hash, hash.c_str(), sizeof(config.hash) - 1);
+
+    char hashBuffer[ConfigLimits::CONFIG_HASH_MAX_LENGTH];
+    calculateHash(&config, hashBuffer, sizeof(hashBuffer));
+    
+    strncpy(config.hash, hashBuffer, sizeof(hashBuffer));
     config.hash[sizeof(config.hash) - 1] = '\0';
 }
 
@@ -58,7 +61,16 @@ void ConfigManager::print(RuntimeConfig* config) {
     Serial.printf("Config Hash: %s\n", config->hash);
 }
 
-String ConfigManager::calculateHash(RuntimeConfig* config) {
+bool ConfigManager::validateConfig(const RuntimeConfig* pConfig, char* buffer, size_t bufferSize) {
+    /*
+    TODO: Validation check if config parameters are valid (e.g. not empty, too long, etc.)
+
+    snprintf(buffer, bufferSize, "device.statusUpdatesInterval has to be greater than 0");
+    if (pConfig->device.statusUpdateInterval <= 0) return false;
+    */
+}
+
+void ConfigManager::calculateHash(RuntimeConfig* config, char* hashBuffer, size_t hashBufferSize) {
     MD5Builder md5;
     md5.begin();
     
@@ -75,7 +87,7 @@ String ConfigManager::calculateHash(RuntimeConfig* config) {
     md5.add(configString);
     md5.calculate();
 
-    return md5.toString();
+    md5.toString().toCharArray(hashBuffer, sizeof(hashBuffer));
 }
 
 bool ConfigManager::begin() {
@@ -194,9 +206,11 @@ bool ConfigManager::hasConfigDefinesChanged() {
     RuntimeConfig defaultConfig;
     setConfigFromDefines(&defaultConfig);
 
-    String defaultConfigHash = calculateHash(&defaultConfig);
-    Serial.printf("File Config Hash: %s - Stored Config Hash: %s\n", defaultConfigHash.c_str(), config.hash);
-    return strcmp(defaultConfigHash.c_str(), config.hash) != 0;
+    char hashBuffer[ConfigLimits::CONFIG_HASH_MAX_LENGTH];
+    calculateHash(&defaultConfig, hashBuffer, sizeof(hashBuffer));
+    
+    Serial.printf("File Config Hash: %s - Stored Config Hash: %s\n", hashBuffer, config.hash);
+    return strcmp(hashBuffer, config.hash) != 0;
 }
 
 void ConfigManager::updateDeviceConfig() {
