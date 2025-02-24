@@ -4,10 +4,10 @@
 #include <Device.h>
 #include "states/SetupState.h"
 
-class IdleState : public DeviceState {
+class IdleState : public IDeviceState {
 private:
     IdleState(Device* device) 
-        : DeviceState(device, StateIdentifier::IDLE_STATE)
+        : IDeviceState(device, StateIdentifier::IDLE_STATE)
         , log(LogManager::getInstance())
         , configManager(ConfigManager::getInstance()) {};
     

@@ -3,11 +3,11 @@
 
 #include <Update.h>
 #include <HTTPClient.h>
-#include "Device.h"
-#include "states/ActionState.h"
+#include "ActionState.h"
 #include "states/ErrorState.h"
+#include "interfaces/IDeviceState.h"
+#include "Device.h"
 #include "ErrorCodes.h"
-#include "DeviceState.h"
 
 enum class UpdatePhase {
    CHECK_VERSION,
@@ -18,10 +18,10 @@ enum class UpdatePhase {
     __DELIMITER__
 };
 
-class UpdateState : public DeviceState {
+class UpdateState : public IDeviceState {
 private:
     UpdateState(Device* device)
-        : DeviceState(device, StateIdentifier::UPDATE_STATE)
+        : IDeviceState(device, StateIdentifier::UPDATE_STATE)
         , log(LogManager::getInstance())
         , configManager(ConfigManager::getInstance()) 
         , mqttManager(MQTTManager::getInstance()) 

@@ -3,14 +3,14 @@
 
 #include <Device.h>
 #include <WiFi.h>
-#include "LogManager.h"
-#include "WiFiManager.h"
-#include "MQTTManager.h"
+#include "managers/LogManager.h"
+#include "managers/WiFiManager.h"
+#include "managers/MQTTManager.h"
+#include "managers/BluetoothManager.h"
 #include "states/ErrorState.h"
 #include "states/ActionState.h"
 #include "states/UpdateState.h"
 #include "ErrorCodes.h"
-#include "BluetoothManager.h"
 
 enum class SetupPhase {
     INIT,
@@ -22,10 +22,10 @@ enum class SetupPhase {
     __DELIMITER__
 };
 
-class SetupState : public DeviceState {
+class SetupState : public IDeviceState {
 private:
     SetupState(Device* device) 
-        : DeviceState(device, StateIdentifier::SETUP_STATE)
+        : IDeviceState(device, StateIdentifier::SETUP_STATE)
         , log(LogManager::getInstance())
         , configManager(ConfigManager::getInstance())
         , wifiManager(WiFiManager::getInstance())

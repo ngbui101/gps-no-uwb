@@ -1,13 +1,13 @@
 #ifndef ERROR_STATE_H
 #define ERROR_STATE_H
 
-#include <Device.h>
 #include <ErrorCodes.h>
+#include "Device.h"
 
-class ErrorState : public DeviceState {
+class ErrorState : public IDeviceState {
 private:
     ErrorState(Device* device) 
-        : DeviceState(device, StateIdentifier::ERROR_STATE)
+        : IDeviceState(device, StateIdentifier::ERROR_STATE)
         , errorCode(ErrorCode::UNKNOWN_ERROR)
         , log(LogManager::getInstance())
         , mqttManager(MQTTManager::getInstance())
@@ -18,7 +18,7 @@ private:
     MQTTManager& mqttManager;
 
     ErrorCode errorCode;
-    DeviceState* sourceState;
+    IDeviceState* sourceState;
     const char* errorMessage;
     uint8_t recoveryAttempts;
     unsigned long lastRecoveryAttempt;
@@ -27,7 +27,7 @@ private:
     void reportError();
     void startRecoveryTimer();
     bool shouldAttemptRecovery() const;
-    DeviceState* determineNextState();
+    IDeviceState* determineNextState();
 
     constexpr size_t getErrorCodeCount() {return static_cast<size_t>(ErrorCode::__DELIMITER__);};
 
@@ -40,7 +40,7 @@ public:
         return instance;
     }
 
-    void setError(ErrorCode errorCode, DeviceState* sourceState, const char* message);
+    void setError(ErrorCode errorCode, IDeviceState* sourceState, const char* message);
     const char* getErrorMessage() const { return errorMessage; }
     ErrorCode getErrorCode() const { return errorCode; }
 

@@ -14,7 +14,7 @@ void ErrorState::exit() {
     log.debug("ErrorState", "Exiting ErrorState");
 }
 
-void ErrorState::setError(ErrorCode errorCode, DeviceState* sourceState, const char* message) {
+void ErrorState::setError(ErrorCode errorCode, IDeviceState* sourceState, const char* message) {
 
 }
 

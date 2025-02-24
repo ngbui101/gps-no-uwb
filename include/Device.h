@@ -9,11 +9,13 @@
 #define VERSION_PATCH 1
 #define VERSION_STRING STRINGIFY(VERSION_MAJOR) "." STRINGIFY(VERSION_MINOR) "." STRINGIFY(VERSION_PATCH)
 
-#include "ConfigManager.h"
-#include "states/DeviceState.h"
-#include "MQTTManager.h"
-#include "LogManager.h"
 #include <ArduinoJson.h>
+#include "managers/ConfigManager.h"
+#include "managers/MQTTManager.h"
+#include "managers/LogManager.h"
+#include "managers/CommandManager.h"
+#include "interfaces/IDeviceState.h"
+#include "SerialCommandContext.h"
 
 enum class DeviceStatus {
     BOOTING,
@@ -25,7 +27,7 @@ enum class DeviceStatus {
     __DELIMITER__
 };
 
-class DeviceState;
+class IDeviceState;
 
 class Device {
 private:
@@ -34,17 +36,23 @@ private:
         , lastStatusUpdate(0)
         , mqttManager(MQTTManager::getInstance())
         , configManager(ConfigManager::getInstance())
-        , log(LogManager::getInstance()) {}
+        , log(LogManager::getInstance())
+        , commandManager(CommandManager::getInstance()) {}
     
     MQTTManager& mqttManager;
     ConfigManager& configManager;
+    CommandManager& commandManager;
     LogManager& log;
 
     static const size_t JSON_DOC_SIZE = 512;
-    DeviceState* currentState;
+    IDeviceState* currentState;
     uint32_t lastStatusUpdate;
+    SerialCommandContext serialContext; 
 
     void sendDeviceStatus();
+    void registerCommands();
+    void handleSerialCommands();
+    void updateDeviceStatus();
 
     const char* getDeviceStatusString(DeviceStatus status);
     constexpr size_t getDeviceStatusCount() {return static_cast<size_t>(DeviceStatus::__DELIMITER__);};
@@ -58,9 +66,10 @@ public:
         return instance;
     }
 
-    void changeState(DeviceState& newState);
+    bool begin();
+    void changeState(IDeviceState& newState);
     void update();
-    DeviceState* getCurrentState() { return currentState; }
+    IDeviceState* getCurrentState() { return currentState; }
 };
 
 #endif

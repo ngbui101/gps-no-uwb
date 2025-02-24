@@ -1,12 +1,12 @@
 #ifndef ACTION_SATE_H
 #define ACTION_SATE_H
 
-#include <Device.h>
+#include "../Device.h"
 
-class ActionState : public DeviceState {
+class ActionState : public IDeviceState {
 private:
     ActionState(Device* device) 
-        : DeviceState(device, StateIdentifier::ACTION_STATE)
+        : IDeviceState(device, StateIdentifier::ACTION_STATE)
         , log(LogManager::getInstance())
         , configManager(ConfigManager::getInstance()) {};
     

@@ -2,10 +2,11 @@
 #include <Wire.h>
 #include "esp_system.h"
 #include "esp_log.h"
-#include "ConfigManager.h"
-#include "Device.h"
-#include "LogManager.h"
+#include "managers/ConfigManager.h"
+#include "managers/LogManager.h"
 #include "states/IdleState.h"
+#include "states/TestState.h"
+#include "Device.h"
 
 
 void setup() {
@@ -20,26 +21,18 @@ void setup() {
   Serial.println();
   Serial.println(F("###################################################"));
 
-  ConfigManager& configManager = ConfigManager::getInstance();
-  RuntimeConfig& config = configManager.getRuntimeConfig();
+  //ConfigManager& configManager = ConfigManager::getInstance();
+  //RuntimeConfig& config = configManager.getRuntimeConfig();
   LogManager& log = LogManager::getInstance();
   Device& device = Device::getInstance();
 
-  if(!configManager.begin()) {
-    log.error("main", "Failed to initialize ConfigManager");
-    while(true);
+  Serial.println("STARTING HERE.....");
+  if (!device.begin()) {
+      Serial.println(F("Failed to initialize device"));
+      while(true);
   }
 
-  if (configManager.hasConfigDefinesChanged()) {
-    log.info("main", "ConfigDefines has changed, updating device config");
-    configManager.updateDeviceConfig();
-  }
-
-  Serial.println(F("###################################################"));
-  configManager.print(&configManager.getRuntimeConfig());
-  Serial.println(F("###################################################"));
-
-  //device.changeState(IdleState::getInstance(&device));
+  device.changeState(TestState::getInstance(&device));
 }
 
 void loop() {
