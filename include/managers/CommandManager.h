@@ -3,10 +3,10 @@
 
 #include <map>
 #include <memory>
-#include "../interfaces/ICommand.h"
-#include "../interfaces/ICommandContext.h"
-#include "../commands/HelpCommand.h"
-#include "../commands/PingCommand.h"
+#include "interfaces/ICommand.h"
+#include "interfaces/ICommandContext.h"
+#include "commands/HelpCommand.h"
+#include "commands/PingCommand.h"
 #include "LogManager.h"
 
 class CommandManager {

@@ -91,17 +91,16 @@ void ConfigManager::calculateHash(RuntimeConfig* config, char* hashBuffer, size_
 }
 
 bool ConfigManager::begin() {
-    if (initialized) {
-        return true;
-    }
+    if (initialized) return true;
 
     if (ESP.getFreeHeap() < 10000) {
-        Serial.println(F("Warning: Low memory"));
+        Serial.println("Free Heap: " + String(ESP.getFreeHeap()));
     }
 
     if(!LittleFS.begin(true)) {
-        Serial.println(F("Failed to mount file system"));
+        Serial.println("Failed to mount file system");
         loadDefaults();
+        
         return false;
     }
 

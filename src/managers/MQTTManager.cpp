@@ -24,6 +24,16 @@ void MQTTManager::handleCallback(char* topic, uint8_t* payload, uint32_t length)
     delete[] message;
 }
 
+bool MQTTManager::isSubscribed(const char* topic){
+    for(const Subscription& subscription : subscriptions) {
+        if(subscription.topic == topic) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool MQTTManager::matchTopic(const char* pattern, const char* topic) {
     while (*pattern && *topic) {
         if (*pattern == '+') {
@@ -57,10 +67,6 @@ bool MQTTManager::begin(){
         log.warning("MQTTManager", "No MQTT port available, skipping MQTTManager initialization");
         return false;
     }
-
-    initializeDeviceTopic();
-
-    snprintf(clientId, sizeof(clientId), "%s-%x", config.device.name, static_cast<uint32_t>(config.device.chipID));
 
     client.setServer(config.mqtt.broker, config.mqtt.port);
     client.setCallback([this](char* topic, byte* payload, unsigned int length) {
@@ -118,12 +124,7 @@ void MQTTManager::disconnect(){
     }
 }
 
-bool MQTTManager::subscribe(const char* topic, MQTTCallback callback) {
-    if(!client.connected()) {
-        log.error("MQTTManager", "MQTT client not connected");
-        return false;
-    }
-
+bool MQTTManager::subscribe(const char* topic, MQTTCallback callback, bool isPersistent) {
     for(const auto& subscription : subscriptions) {
         if(subscription.topic == topic) {
             log.warning("MQTTManager", "Already subscribed to topic");
@@ -132,7 +133,7 @@ bool MQTTManager::subscribe(const char* topic, MQTTCallback callback) {
     }
 
     if(client.subscribe(topic)){
-        subscriptions.push_back({String(topic), callback});
+        subscriptions.push_back({String(topic), callback, isPersistent});
         
         char msgBuffer[128];
         snprintf(msgBuffer, sizeof(msgBuffer), "Subscribed to topic: %s", topic);
@@ -140,10 +141,6 @@ bool MQTTManager::subscribe(const char* topic, MQTTCallback callback) {
 
         return true;
     }
-
-    char msgBuffer[128];
-    snprintf(msgBuffer, sizeof(msgBuffer), "Failed to subscribe to topic: %s", topic);
-    log.error("MQTTManager", msgBuffer);
 
     return false;
 }
@@ -220,9 +217,4 @@ void MQTTManager::update(){
 
 bool MQTTManager::isConnected(){
     return client.connected();
-}
-
-void MQTTManager::initializeDeviceTopic() {
-    RuntimeConfig& config = configManager.getRuntimeConfig();
-    snprintf(deviceTopic, sizeof(deviceTopic), "%s/%u", config.mqtt.baseTopic, static_cast<uint32_t>(config.device.chipID));
 }

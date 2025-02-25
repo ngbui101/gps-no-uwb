@@ -21,18 +21,16 @@ void setup() {
   Serial.println();
   Serial.println(F("###################################################"));
 
-  //ConfigManager& configManager = ConfigManager::getInstance();
-  //RuntimeConfig& config = configManager.getRuntimeConfig();
-  LogManager& log = LogManager::getInstance();
   Device& device = Device::getInstance();
 
-  Serial.println("STARTING HERE.....");
   if (!device.begin()) {
       Serial.println(F("Failed to initialize device"));
       while(true);
   }
 
-  device.changeState(TestState::getInstance(&device));
+  Serial.println("FINISHED DEVICE INIT");
+
+  device.changeState(IdleState::getInstance(&device));
 }
 
 void loop() {

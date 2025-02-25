@@ -5,9 +5,11 @@ bool Device::begin(){
 
     if(!configManager.begin()) {
         log.error("Device", "Failed to initialize ConfigManager");
-        false;
+        
+        return false;
     }
 
+    //TODO: Redo the integry check of stored config vs config defines
     if (configManager.hasConfigDefinesChanged()) {
         log.info("Device", "ConfigDefines has changed, updating device config");
         configManager.updateDeviceConfig();
@@ -18,9 +20,38 @@ bool Device::begin(){
         return false;
     }
 
+    /*TODO: WORK IN PROGRESS*/
+
     registerCommands();
 
     return true;
+}
+
+bool Device::setupMQTTCommandListener() {
+    log.debug("Device", "Setting up MQTT Command Listener...");
+
+    String mqttCommandTopic = String(mqttManager.getDeviceTopic()) + "/cmd";
+    mqttContext = std::unique_ptr<MQTTCommandContext>(new MQTTCommandContext());
+
+    /*
+    mqttManager.subscribe(mqttCommandTopic.c_str(), [this](const char* topic, const uint8_t* payload, unsigned int length) {
+            handleMQTTCommand(topic, payload, length);
+        }, true
+    );
+    */
+}
+
+void Device::handleMQTTCommand(const char* topic, const uint8_t* payload, unsigned int length){
+    char message[length + 1];
+    memcpy(message, payload, length);
+    message[length] = '\0';
+    String command(message);
+    
+    if (command.startsWith("{") && command.endsWith("}")) {
+        //handleMQTTJsonCommand(command);
+    } else {
+        commandManager.executeCommand(command, *mqttContext);
+    }
 }
 
 void Device::registerCommands(){

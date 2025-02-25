@@ -20,6 +20,7 @@ void CommandManager::registerCommand(std::shared_ptr<ICommand> command){
 }
 
 bool CommandManager::executeCommand(const String& commandStr, ICommandContext& context){
+    Serial.println("Recevied: " + commandStr);
     std::vector<String> commandArgs;
     String currentArg;
     bool isQuoted = false;

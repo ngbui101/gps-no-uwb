@@ -1,7 +1,7 @@
 #ifndef ACTION_SATE_H
 #define ACTION_SATE_H
 
-#include "../Device.h"
+#include "Device.h"
 
 class ActionState : public IDeviceState {
 private:

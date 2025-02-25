@@ -9,13 +9,15 @@
 #define VERSION_PATCH 1
 #define VERSION_STRING STRINGIFY(VERSION_MAJOR) "." STRINGIFY(VERSION_MINOR) "." STRINGIFY(VERSION_PATCH)
 
+#include <memory>
 #include <ArduinoJson.h>
 #include "managers/ConfigManager.h"
 #include "managers/MQTTManager.h"
 #include "managers/LogManager.h"
 #include "managers/CommandManager.h"
 #include "interfaces/IDeviceState.h"
-#include "SerialCommandContext.h"
+#include "contexts/SerialCommandContext.h"
+#include "contexts/MQTTCommandContext.h"
 
 enum class DeviceStatus {
     BOOTING,
@@ -47,12 +49,16 @@ private:
     static const size_t JSON_DOC_SIZE = 512;
     IDeviceState* currentState;
     uint32_t lastStatusUpdate;
-    SerialCommandContext serialContext; 
+    
+    SerialCommandContext serialContext;
+    std::unique_ptr<MQTTCommandContext> mqttContext;
 
     void sendDeviceStatus();
     void registerCommands();
     void handleSerialCommands();
     void updateDeviceStatus();
+    bool setupMQTTCommandListener();
+    void handleMQTTCommand(const char* topic, const uint8_t* payload, unsigned int length);
 
     const char* getDeviceStatusString(DeviceStatus status);
     constexpr size_t getDeviceStatusCount() {return static_cast<size_t>(DeviceStatus::__DELIMITER__);};

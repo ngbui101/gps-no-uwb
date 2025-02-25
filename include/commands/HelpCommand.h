@@ -2,8 +2,8 @@
 #define HELP_COMMAND_H
 
 #include <map>
-#include "../interfaces/ICommand.h"
-#include "../managers/CommandManager.h"
+#include "interfaces/ICommand.h"
+#include "managers/CommandManager.h"
 
 class HelpCommand : public ICommand {
 public:

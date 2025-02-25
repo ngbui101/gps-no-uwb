@@ -1,7 +1,7 @@
 #ifndef PING_COMMAND_H
 #define PING_COMMAND_H
 
-#include "../interfaces/ICommand.h"
+#include "interfaces/ICommand.h"
 
 class PingCommand : public ICommand {
 public:

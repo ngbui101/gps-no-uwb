@@ -13,6 +13,7 @@ typedef std::function<void(char*, uint8_t*, unsigned int)> MQTTCallback;
 struct Subscription {
     String topic;
     MQTTCallback callback;
+    bool persistent;
 };
 
 class MQTTManager {
@@ -22,7 +23,12 @@ private:
         , initialized(false)
         , lastAttempt(0)
         , log(LogManager::getInstance())
-        , configManager(ConfigManager::getInstance()) {}
+        , configManager(ConfigManager::getInstance()) {
+            RuntimeConfig& config = configManager.getRuntimeConfig();
+            
+            snprintf(deviceTopic, sizeof(deviceTopic), "%s/%u", config.mqtt.baseTopic, static_cast<uint32_t>(config.device.chipID));
+            snprintf(clientId, sizeof(clientId), "%s-%x", config.device.name, static_cast<uint32_t>(config.device.chipID));
+        }
 
     LogManager& log;
     ConfigManager& configManager;
@@ -38,7 +44,6 @@ private:
 
     void handleCallback(char* topic, uint8_t* payload, uint32_t length);
     bool matchTopic(const char* pattern, const char* topic);
-    void initializeDeviceTopic();
 
 public:
     MQTTManager(const MQTTManager&) = delete;
@@ -52,11 +57,12 @@ public:
     bool begin();
     bool connect();
     void disconnect();
-    bool subscribe(const char* topic, MQTTCallback callback);
+    bool subscribe(const char* topic, MQTTCallback callback, bool isPersistent = false);
     bool unsubscribe(const char* topic);
     bool publish(const char* topic, const char* payload, bool retained = false, bool isAbsoluteTopic = false);
     void update();
     bool isConnected();
+    bool isSubscribed(const char* topic);
 
     PubSubClient& getClient() { return client; }
     const char* getClientId() { return clientId; }
