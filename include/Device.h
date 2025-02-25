@@ -15,6 +15,7 @@
 #include "managers/MQTTManager.h"
 #include "managers/LogManager.h"
 #include "managers/CommandManager.h"
+#include "managers/SerialManager.h"
 #include "interfaces/IDeviceState.h"
 #include "contexts/SerialCommandContext.h"
 #include "contexts/MQTTCommandContext.h"
@@ -39,12 +40,14 @@ private:
         , mqttManager(MQTTManager::getInstance())
         , configManager(ConfigManager::getInstance())
         , log(LogManager::getInstance())
-        , commandManager(CommandManager::getInstance()) {}
+        , commandManager(CommandManager::getInstance())
+        , serialManager(SerialManager::getInstance()) {}
     
     MQTTManager& mqttManager;
     ConfigManager& configManager;
     CommandManager& commandManager;
     LogManager& log;
+    SerialManager& serialManager;
 
     static const size_t JSON_DOC_SIZE = 512;
     IDeviceState* currentState;

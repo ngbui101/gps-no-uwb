@@ -20,7 +20,6 @@ void CommandManager::registerCommand(std::shared_ptr<ICommand> command){
 }
 
 bool CommandManager::executeCommand(const String& commandStr, ICommandContext& context){
-    Serial.println("Recevied: " + commandStr);
     std::vector<String> commandArgs;
     String currentArg;
     bool isQuoted = false;
@@ -57,7 +56,6 @@ bool CommandManager::executeCommand(const String& commandStr, ICommandContext& c
     auto commandIterator = commands.find(commandName);
     if (commandIterator == commands.end()) {
         context.sendResponse("Unknown command. Type 'help' for available commands.");
-        log.warning("CommandManager", "Unknown command attempted");
         return false;
     }
 

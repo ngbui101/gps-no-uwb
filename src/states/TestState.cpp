@@ -5,7 +5,6 @@ void TestState::enter(){
 }
 
 void TestState::update(){
-    device->changeState(TestState::getInstance(device));
 }
 
 void TestState::exit(){

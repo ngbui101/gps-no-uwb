@@ -15,10 +15,17 @@ bool Device::begin(){
         configManager.updateDeviceConfig();
     }
 
+    if(!serialManager.begin()) {
+        log.error("Device", "Failed to initialize SerialManager");
+        return false;
+    }
+
+    /*
     if (!commandManager.begin()) {
         log.error("Device", "Failed to initialize CommandManager");
         return false;
     }
+    */
 
     /*TODO: WORK IN PROGRESS*/
 
@@ -72,16 +79,11 @@ void Device::changeState(IDeviceState& newState) {
 }
 
 void Device::update() {
-    if (!currentState) {
-       return;
-    }
-
-    RuntimeConfig& config = configManager.getRuntimeConfig();
+    serialManager.update();
+    
+    if (!currentState) return;
 
     currentState->update();
-
-    handleSerialCommands();
-    updateDeviceStatus();
 }
 
 void Device::handleSerialCommands() {
