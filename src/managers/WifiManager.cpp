@@ -114,6 +114,10 @@ String WiFiManager::getSSID() {
     return WiFi.SSID();
 }
 
+uint8_t* WiFiManager::getBSSID() {
+    return WiFi.BSSID();
+}
+
 int32_t WiFiManager::getRSSI() {
     return WiFi.RSSI();
 }

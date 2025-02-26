@@ -55,6 +55,7 @@ public:
     
     String getIP();
     String getSSID();
+    uint8_t* getBSSID();
     int32_t getRSSI();
     uint8_t getConnectionAttempts();
 
