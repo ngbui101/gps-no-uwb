@@ -24,7 +24,7 @@ public:
 
             subCommandDescriptions["start"] = "Starts the WiFi access point";
 
-            subCommandParameters["start_ap"] = {
+            subCommandParameters["start"] = {
                 {"--ssid", "SSID of the target AP", true, ""},
                 {"--password", "Password of the target AP - leave it empty if it is a public network", false, ""}
             };
