@@ -126,3 +126,6 @@ uint8_t WiFiManager::getConnectionAttempts() {
     return connectionAttempts;
 }
 
+bool WiFiManager::ftmAP(const char* ssid){
+    return WiFi.softAP(ssid, NULL, 1, 0, 4, true);
+}

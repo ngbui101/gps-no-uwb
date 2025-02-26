@@ -59,6 +59,8 @@ public:
     int32_t getRSSI();
     uint8_t getConnectionAttempts();
 
+    bool ftmAP(const char* ssid);
+
     WiFiStatus getStatus();
     const char* getStatusString() { return getWifiStatusString(status); };
 };
