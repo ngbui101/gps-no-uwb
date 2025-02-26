@@ -16,9 +16,9 @@ enum class WiFiStatus {
     __DELIMITER__
 };
 
-class WiFiManager {
+class WifiManager {
 private:
-    WiFiManager()
+    WifiManager()
         : status(WiFiStatus::DISCONNECTED)
         , lastAttempt(0)
         , connectionAttempts(0)
@@ -36,11 +36,11 @@ private:
     constexpr size_t getWifiStatusCount() {return static_cast<size_t>(WiFiStatus::__DELIMITER__);};
 
 public:
-    WiFiManager(const WiFiManager&) = delete;
-    void operator=(const WiFiManager&) = delete;
+    WifiManager(const WifiManager&) = delete;
+    void operator=(const WifiManager&) = delete;
 
-    static WiFiManager& getInstance() {
-        static WiFiManager instance;
+    static WifiManager& getInstance() {
+        static WifiManager instance;
         return instance;
     }
 

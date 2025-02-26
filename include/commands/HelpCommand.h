@@ -3,6 +3,7 @@
 
 #include <map>
 #include "interfaces/ICommand.h"
+#include "interfaces/IExtendedCommand.h"
 #include "managers/CommandManager.h"
 
 class HelpCommand : public ICommand {

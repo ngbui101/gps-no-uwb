@@ -7,6 +7,7 @@
 #include "interfaces/ICommandContext.h"
 #include "commands/HelpCommand.h"
 #include "commands/PingCommand.h"
+#include "commands/WifiCommand.h"
 #include "LogManager.h"
 
 class CommandManager {

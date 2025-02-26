@@ -30,7 +30,7 @@ void setup() {
 
   Serial.println("FINISHED DEVICE INIT");
 
-  device.changeState(IdleState::getInstance(&device));
+  device.changeState(TestState::getInstance(&device));
 }
 
 void loop() {

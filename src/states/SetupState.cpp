@@ -64,7 +64,7 @@ void SetupState::exit() {
 
 bool SetupState::initializeManagers() {
     if(!wifiManager.begin()) {
-        log.error("SetupState", "Failed to initialize WiFiManager");
+        log.error("SetupState", "Failed to initialize WifiManager");
         return false;
     }
 
@@ -77,7 +77,7 @@ bool SetupState::initializeManagers() {
 }
 
 void SetupState::handleWifiConnection(){
-     wifiManager.update();
+    wifiManager.update();
     
     switch (wifiManager.getStatus()) {
         case WiFiStatus::DISCONNECTED:

@@ -4,7 +4,7 @@
 #include <Device.h>
 #include <WiFi.h>
 #include "managers/LogManager.h"
-#include "managers/WiFiManager.h"
+#include "managers/WifiManager.h"
 #include "managers/MQTTManager.h"
 #include "managers/BluetoothManager.h"
 #include "states/ErrorState.h"
@@ -28,13 +28,13 @@ private:
         : IDeviceState(device, StateIdentifier::SETUP_STATE)
         , log(LogManager::getInstance())
         , configManager(ConfigManager::getInstance())
-        , wifiManager(WiFiManager::getInstance())
+        , wifiManager(WifiManager::getInstance())
         , mqttManager(MQTTManager::getInstance())
         , bluetoothManager(BluetoothManager::getInstance()) {};
 
     LogManager& log;
     ConfigManager& configManager;
-    WiFiManager& wifiManager;
+    WifiManager& wifiManager;
     MQTTManager& mqttManager;
     BluetoothManager& bluetoothManager;
 

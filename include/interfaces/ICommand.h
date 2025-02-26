@@ -5,6 +5,13 @@
 #include <vector>
 #include "ICommandContext.h"
 
+struct CommandParameter {
+    String name;
+    String description;
+    bool required;
+    String defaultValue;
+};
+
 class ICommand {
 public:
     virtual const char* getName() const = 0;
@@ -14,6 +21,8 @@ public:
     virtual bool hasSubCommands() const { return false; }
     virtual std::vector<String> getSubCommands() const { return {}; }
     virtual const char* getSubCommandDescription(const String& subCommand) const { return ""; }
+
+    virtual std::vector<CommandParameter> getSubCommandParameters(const String& subCommand) const { return {}; }
 
     virtual ~ICommand() = default;
 };

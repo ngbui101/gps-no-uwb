@@ -7,7 +7,7 @@
 class SerialCommandContext : public ICommandContext {
 public:
     void sendResponse(const char* response) override {
-        Serial.println(response);
+        Serial.print(response);
     }
 };
 
