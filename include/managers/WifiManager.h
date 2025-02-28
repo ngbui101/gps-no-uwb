@@ -69,6 +69,7 @@ public:
 
     bool ftmAP(const char* ssid);
     bool initiateFtm(uint8_t channel, byte mac[]);
+    int scan(bool ftm);
 };
 
 #endif

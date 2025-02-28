@@ -170,3 +170,33 @@ bool WifiManager::initiateFtm(uint8_t channel, byte mac[]) {
     
     return xSemaphoreTake(ftmSemaphore, portMAX_DELAY) == pdPASS && ftmSuccess;
 }
+
+int WifiManager::scan(bool ftm = false){
+    int n = WiFi.scanNetworks();
+
+    if (n == 0) {
+        log.warning("WiFiManager", "No networks found");
+    } else {
+        char msgBuffer[256];
+        snprintf(msgBuffer, sizeof(msgBuffer), "Found %d networks", n);
+        log.info("WiFiManager", msgBuffer);
+
+        log.info("WiFiManager", "| Nr | SSID                             | RSSI | CH | MAC               |");
+        log.info("WiFiManager", "|----|----------------------------------|------|----|-------------------|");
+
+        for (int i = 0; i < n; ++i) {
+
+            if (ftm){
+                initiateFtm(WiFi.channel(i), WiFi.BSSID(i));
+            }
+
+            snprintf(msgBuffer, sizeof(msgBuffer), "| %2d | %-32.32s | %4ld | %2ld | %02X:%02X:%02X:%02X:%02X:%02X | ",
+                        i + 1, WiFi.SSID(i).c_str(), WiFi.RSSI(i), WiFi.channel(i),
+                        WiFi.BSSID(i)[0], WiFi.BSSID(i)[1], WiFi.BSSID(i)[2], WiFi.BSSID(i)[3], WiFi.BSSID(i)[4], WiFi.BSSID(i)[5]);
+            log.info("WiFiManager", msgBuffer);
+        }
+    }
+
+    WiFi.scanDelete();
+    return n;
+}
