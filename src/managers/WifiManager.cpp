@@ -23,7 +23,10 @@ bool WiFiManager::begin(){
     } else if (strlen(config.wifi.password) == 0) {
         log.warning("WiFiManager", "No password available, skipping WiFiManager initialization");
         return false;
-    } 
+    }
+
+    ftmSemaphore = xSemaphoreCreateBinary();
+    WiFi.onEvent(onFtmReport, ARDUINO_EVENT_WIFI_FTM_REPORT);
 
     WiFi.mode(WIFI_STA);
     return true;
@@ -128,4 +131,42 @@ uint8_t WiFiManager::getConnectionAttempts() {
 
 bool WiFiManager::ftmAP(const char* ssid){
     return WiFi.softAP(ssid, NULL, 1, 0, 4, true);
+}
+
+void WiFiManager::onFtmReport(arduino_event_t *event) {
+    
+    const char *status_str[5] = {"SUCCESS", "UNSUPPORTED", "CONF_REJECTED", "NO_RESPONSE", "FAIL"};
+
+    wifi_event_ftm_report_t *report = &event->event_info.wifi_ftm_report;
+    WiFiManager::getInstance().ftmSuccess = report->status == FTM_STATUS_SUCCESS;
+    if (WiFiManager::getInstance().ftmSuccess) {
+
+        char msgBuffer[256];
+        snprintf(msgBuffer, sizeof(msgBuffer), "FTM report status: %s, Distance: %.2f m, Return Time: %lu ns", status_str[report->status], (float)report->dist_est / 100.0, report->rtt_est);
+        LogManager::getInstance().info("WiFiManager", msgBuffer);
+
+        free(report->ftm_report_data);
+    } else {
+        char msgBuffer[64];
+        snprintf(msgBuffer, sizeof(msgBuffer), "FTM report status: %s", status_str[report->status]);
+        LogManager::getInstance().warning("WiFiManager", msgBuffer);
+    }
+    xSemaphoreGive(WiFiManager::getInstance().ftmSemaphore);
+}
+
+bool WiFiManager::initiateFtm(uint8_t channel, byte mac[]) {
+
+    RuntimeConfig& config = configManager.getRuntimeConfig();
+
+    char msgBuffer[256];
+    snprintf(msgBuffer, sizeof(msgBuffer), "Initiating FTM session channnel: %d, mac: %02X:%02X:%02X:%02X:%02X:%02X frameCount: %d, burstPeriod: %d ms",
+                                    channel, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], config.wifi.ftmFrameCount, config.wifi.ftmBurstPeriod * 100);
+    log.info("WiFiManager", msgBuffer);
+
+    if (!WiFi.initiateFTM(config.wifi.ftmFrameCount, config.wifi.ftmBurstPeriod, channel, mac)) {
+        log.error("WiFiManager", "Failed to initiate FTM session");
+        return false;
+    }
+    
+    return xSemaphoreTake(ftmSemaphore, portMAX_DELAY) == pdPASS && ftmSuccess;
 }

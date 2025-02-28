@@ -32,8 +32,13 @@ private:
     ConfigManager& configManager;
     LogManager& log;
 
+    bool ftmSuccess;
+    SemaphoreHandle_t ftmSemaphore;
+
     const char *getWifiStatusString(WiFiStatus status);
     constexpr size_t getWifiStatusCount() {return static_cast<size_t>(WiFiStatus::__DELIMITER__);};
+
+    static void onFtmReport(arduino_event_t *event);
 
 public:
     WiFiManager(const WiFiManager&) = delete;
@@ -59,10 +64,11 @@ public:
     int32_t getRSSI();
     uint8_t getConnectionAttempts();
 
-    bool ftmAP(const char* ssid);
-
     WiFiStatus getStatus();
     const char* getStatusString() { return getWifiStatusString(status); };
+
+    bool ftmAP(const char* ssid);
+    bool initiateFtm(uint8_t channel, byte mac[]);
 };
 
 #endif
