@@ -9,6 +9,30 @@ bool HelpCommand::execute(const std::vector<String>& args, ICommandContext& cont
             auto cmd = commandManager.getCommand(commandName);
             String response = "Help for command '" + commandName + "':\n";
             response += "  Description: " + String(cmd->getDescription()) + "\n";
+            
+            if (cmd->hasSubCommands()) {
+                response += "\nSubcommands:\n";
+                std::vector<String> subCommands = cmd->getSubCommands();
+                for (const auto& subCmd : subCommands) {
+                    response += "  " + subCmd + " - " + String(cmd->getSubCommandDescription(subCmd)) + "\n";
+                    
+                    // Parameter anzeigen
+                    std::vector<CommandParameter> params = cmd->getSubCommandParameters(subCmd);
+                    if (!params.empty()) {
+                        response += "    Parameters:\n";
+                        for (const auto& param : params) {
+                            response += "      " + param.name + ": " + param.description;
+                            if (param.required) {
+                                response += " (required)";
+                            } else if (param.defaultValue.length() > 0) {
+                                response += " (default: " + param.defaultValue + ")";
+                            }
+                            response += "\n";
+                        }
+                    }
+                }
+            }
+            
             context.sendResponse(response.c_str());
             return true;
         } else {

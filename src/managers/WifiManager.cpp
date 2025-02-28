@@ -1,6 +1,6 @@
-#include "managers/WiFiManager.h"
+#include "managers/WifiManager.h"
 
-const char* WiFiManager::getWifiStatusString(WiFiStatus status) {
+const char* WifiManager::getWifiStatusString(WiFiStatus status) {
     switch (status) {
         case WiFiStatus::DISCONNECTED: return "DISCONNECTED";
         case WiFiStatus::CONNECTING: return "CONNECTING";
@@ -12,16 +12,16 @@ const char* WiFiManager::getWifiStatusString(WiFiStatus status) {
     }
 };
 
-bool WiFiManager::begin(){
-    log.debug("WiFiManager", "Initializing WiFiManager...");
+bool WifiManager::begin(){
+    log.debug("WifiManager", "Initializing WifiManager...");
 
     RuntimeConfig& config = configManager.getRuntimeConfig();
 
     if(strlen(config.wifi.ssid) == 0) {
-        log.warning("WiFiManager", "No SSID available, skipping WiFiManager initialization");
+        log.warning("WifiManager", "No SSID available, skipping WifiManager initialization");
         return false;
     } else if (strlen(config.wifi.password) == 0) {
-        log.warning("WiFiManager", "No password available, skipping WiFiManager initialization");
+        log.warning("WifiManager", "No password available, skipping WifiManager initialization");
         return false;
     }
 
@@ -32,11 +32,11 @@ bool WiFiManager::begin(){
     return true;
 }
 
-bool WiFiManager::isConnected() {
+bool WifiManager::isConnected() {
     return status == WiFiStatus::CONNECTED && WiFi.status() == WL_CONNECTED;
 }
 
-bool WiFiManager::connect() { 
+bool WifiManager::connect() { 
     if(status == WiFiStatus::CONNECTED) {
         return true;
     }
@@ -45,7 +45,7 @@ bool WiFiManager::connect() {
 
     char msgBuffer[256];
     snprintf(msgBuffer, sizeof(msgBuffer), "Attempting to connect to Wifi-AP '%s' (['%s', %d], ['%s', %d])", config.wifi.ssid, config.wifi.ssid, strlen(config.wifi.ssid), config.wifi.password, strlen(config.wifi.password));
-    log.debug("WiFiManager", msgBuffer);
+    log.debug("WifiManager", msgBuffer);
 
     //WiFi.setMinSecurity(WIFI_AUTH_WEP); 
     WiFi.begin(config.wifi.ssid, config.wifi.password);
@@ -57,14 +57,14 @@ bool WiFiManager::connect() {
     return true;
 }
 
-void WiFiManager::disconnect() {
-    log.debug("WiFiManager", "Disconnecting from Wifi...");
+void WifiManager::disconnect() {
+    log.debug("WifiManager", "Disconnecting from Wifi...");
 
     WiFi.disconnect();
     status = WiFiStatus::DISCONNECTED;
 }
 
-void WiFiManager::update(){
+void WifiManager::update(){
     RuntimeConfig &config = configManager.getRuntimeConfig();
     if(status == WiFiStatus::CONNECTING){
         if (WiFi.status() == WL_CONNECTED){
@@ -73,7 +73,7 @@ void WiFiManager::update(){
 
             char msgBuffer[64];
             snprintf(msgBuffer, sizeof(msgBuffer), "Connected to Wifi-AP with IP: %s", WiFi.localIP().toString().c_str());
-            log.debug("WiFiManager", msgBuffer);
+            log.debug("WifiManager", msgBuffer);
 
             return;
         }
@@ -87,7 +87,7 @@ void WiFiManager::update(){
                 status = WiFiStatus::CONNECTION_FAILED;
                 char msgBuffer[192];
                 snprintf(msgBuffer, sizeof(msgBuffer), "Failed to connect to Wifi-AP ('%s') due reaching max connection attempts", config.wifi.ssid);
-                log.error("WiFiManager", msgBuffer);
+                log.error("WifiManager", msgBuffer);
 
                 return;
             }
@@ -96,7 +96,7 @@ void WiFiManager::update(){
         status = WiFiStatus::DISCONNECTED;
         char msgBuffer[192];
         snprintf(msgBuffer, sizeof(msgBuffer), "Lost connection to Wifi-AP ('%s')", config.wifi.ssid);
-        log.warning("WiFiManager", msgBuffer);
+        log.warning("WifiManager", msgBuffer);
 
         if (config.wifi.autoReconnect && millis() - lastAttempt >= config.wifi.reconnectInterval) {
             connect();
@@ -104,42 +104,42 @@ void WiFiManager::update(){
     }
 }
 
-WiFiStatus WiFiManager::getStatus(){
+WiFiStatus WifiManager::getStatus(){
     return status;
 }
 
-String WiFiManager::getIP() {
+String WifiManager::getIP() {
     IPAddress localIP = WiFi.localIP();
     return String(localIP[0]) + "." + String(localIP[1]) + "." + String(localIP[2]) + "." + String(localIP[3]);
 }
 
-String WiFiManager::getSSID() {
+String WifiManager::getSSID() {
     return WiFi.SSID();
 }
 
-uint8_t* WiFiManager::getBSSID() {
+uint8_t* WifiManager::getBSSID() {
     return WiFi.BSSID();
 }
 
-int32_t WiFiManager::getRSSI() {
+int32_t WifiManager::getRSSI() {
     return WiFi.RSSI();
 }
 
-uint8_t WiFiManager::getConnectionAttempts() {
+uint8_t WifiManager::getConnectionAttempts() {
     return connectionAttempts;
 }
 
-bool WiFiManager::ftmAP(const char* ssid){
+bool WifiManager::ftmAP(const char* ssid){
     return WiFi.softAP(ssid, NULL, 1, 0, 4, true);
 }
 
-void WiFiManager::onFtmReport(arduino_event_t *event) {
+void WifiManager::onFtmReport(arduino_event_t *event) {
     
     const char *status_str[5] = {"SUCCESS", "UNSUPPORTED", "CONF_REJECTED", "NO_RESPONSE", "FAIL"};
 
     wifi_event_ftm_report_t *report = &event->event_info.wifi_ftm_report;
-    WiFiManager::getInstance().ftmSuccess = report->status == FTM_STATUS_SUCCESS;
-    if (WiFiManager::getInstance().ftmSuccess) {
+    WifiManager::getInstance().ftmSuccess = report->status == FTM_STATUS_SUCCESS;
+    if (WifiManager::getInstance().ftmSuccess) {
 
         char msgBuffer[256];
         snprintf(msgBuffer, sizeof(msgBuffer), "FTM report status: %s, Distance: %.2f m, Return Time: %lu ns", status_str[report->status], (float)report->dist_est / 100.0, report->rtt_est);
@@ -151,10 +151,10 @@ void WiFiManager::onFtmReport(arduino_event_t *event) {
         snprintf(msgBuffer, sizeof(msgBuffer), "FTM report status: %s", status_str[report->status]);
         LogManager::getInstance().warning("WiFiManager", msgBuffer);
     }
-    xSemaphoreGive(WiFiManager::getInstance().ftmSemaphore);
+    xSemaphoreGive(WifiManager::getInstance().ftmSemaphore);
 }
 
-bool WiFiManager::initiateFtm(uint8_t channel, byte mac[]) {
+bool WifiManager::initiateFtm(uint8_t channel, byte mac[]) {
 
     RuntimeConfig& config = configManager.getRuntimeConfig();
 

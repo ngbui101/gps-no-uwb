@@ -24,14 +24,30 @@ bool CommandManager::executeCommand(const String& commandStr, ICommandContext& c
     String currentArg;
     bool isQuoted = false;
 
-    for(char c : commandStr) {
+    for(size_t i = 0; i < commandStr.length(); i++) {
+        char c = commandStr[i];
+        
         if(c == ' ' && !isQuoted) {
             if(currentArg.length() > 0) {
                 commandArgs.push_back(currentArg);
                 currentArg = "";
             }
         } else if(c == '"') {
-            isQuoted = !isQuoted;
+            if (isQuoted) {
+                commandArgs.push_back(currentArg);
+                currentArg = "";
+                isQuoted = false;
+                
+                while (i + 1 < commandStr.length() && commandStr[i + 1] == ' ') {
+                    i++;
+                }
+            } else {
+                isQuoted = true;
+                if (currentArg.length() > 0) {
+                    commandArgs.push_back(currentArg);
+                    currentArg = "";
+                }
+            }
         } else {
             currentArg += c;
         }

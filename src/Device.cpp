@@ -64,6 +64,7 @@ void Device::handleMQTTCommand(const char* topic, const uint8_t* payload, unsign
 void Device::registerCommands(){
     commandManager.registerCommand(std::make_shared<HelpCommand>());
     commandManager.registerCommand(std::make_shared<PingCommand>());
+    commandManager.registerCommand(std::make_shared<WifiCommand>());
 }
 
 void Device::changeState(IDeviceState& newState) {

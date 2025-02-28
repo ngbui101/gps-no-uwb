@@ -16,9 +16,9 @@ enum class WiFiStatus {
     __DELIMITER__
 };
 
-class WiFiManager {
+class WifiManager {
 private:
-    WiFiManager()
+    WifiManager()
         : status(WiFiStatus::DISCONNECTED)
         , lastAttempt(0)
         , connectionAttempts(0)
@@ -41,11 +41,11 @@ private:
     static void onFtmReport(arduino_event_t *event);
 
 public:
-    WiFiManager(const WiFiManager&) = delete;
-    void operator=(const WiFiManager&) = delete;
+    WifiManager(const WifiManager&) = delete;
+    void operator=(const WifiManager&) = delete;
 
-    static WiFiManager& getInstance() {
-        static WiFiManager instance;
+    static WifiManager& getInstance() {
+        static WifiManager instance;
         return instance;
     }
 
