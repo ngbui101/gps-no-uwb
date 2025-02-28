@@ -41,6 +41,8 @@ struct RuntimeConfig {
         uint8_t maxConnectionAttempts;
         uint32_t reconnectInterval;
         uint32_t checkInterval;
+        uint8_t ftmFrameCount = 16;
+        uint16_t ftmBurstPeriod = 2;
     } wifi;
 
     struct {

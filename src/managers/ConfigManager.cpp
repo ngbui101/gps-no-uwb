@@ -138,6 +138,8 @@ void ConfigManager::setConfigFromDefines(RuntimeConfig* config) {
     config->wifi.checkInterval = WIFI_CHECK_INTERVAL;
     config->wifi.reconnectInterval = WIFI_RECONNECT_INTERVAL;
     config->wifi.maxConnectionAttempts = WIFI_MAX_CONNECTION_ATTEMPTS;
+    config->wifi.ftmFrameCount = WIFI_FTM_FRAME_COUNT;
+    config->wifi.ftmBurstPeriod = WIFI_FTM_BURST_PERIOD;
 
     /* #### MQTT #### */
     SAFE_STRLCPY(config->mqtt.broker, MQTT_BROKER);
