@@ -129,8 +129,8 @@ uint8_t WifiManager::getConnectionAttempts() {
     return connectionAttempts;
 }
 
-bool WifiManager::ftmAP(const char* ssid){
-    return WiFi.softAP(ssid, NULL, 1, 0, 4, true);
+bool WifiManager::ftmAP(const char* ssid, const char* password) {
+    return WiFi.softAP(ssid, password, 1, 0, 4, true);
 }
 
 void WifiManager::onFtmReport(arduino_event_t *event) {

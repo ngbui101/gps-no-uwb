@@ -67,7 +67,7 @@ public:
     WiFiStatus getStatus();
     const char* getStatusString() { return getWifiStatusString(status); };
 
-    bool ftmAP(const char* ssid);
+    bool ftmAP(const char* ssid, const char* password);
     bool initiateFtm(uint8_t channel, byte mac[]);
     int scan(bool ftm);
 };

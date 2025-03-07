@@ -9,12 +9,11 @@ bool WifiCommand::startAccessPointCmd(const std::vector<String>& args, ICommandC
     String ssid = args[1];
     String password = args.size() > 2 ? args[2] : "";
 
-    /*
-    if (!wifiManager.startAccessPoint(ssid, password)) {
+    if (!wifiManager.ftmAP(ssid.c_str(), password.c_str())) {
         context.sendResponse("Failed to start access point\n");
         return false;
     }
-    */
+
     context.sendResponse("Access point started\n");
 
     return true;
