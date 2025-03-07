@@ -32,13 +32,15 @@ private:
     ConfigManager& configManager;
     LogManager& log;
 
-    bool ftmSuccess;
     SemaphoreHandle_t ftmSemaphore;
+    wifi_ftm_status_t ftmStatus;
+    uint32_t ftmDistance;
 
     const char *getWifiStatusString(WiFiStatus status);
     constexpr size_t getWifiStatusCount() {return static_cast<size_t>(WiFiStatus::__DELIMITER__);};
 
     static void onFtmReport(arduino_event_t *event);
+    const char *ftm_status_str[5] = {"SUCCESS", "UNSUPPORTED", "CONF_REJECTED", "NO_RESPONSE", "FAIL"};
 
 public:
     WifiManager(const WifiManager&) = delete;

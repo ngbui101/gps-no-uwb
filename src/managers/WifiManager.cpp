@@ -134,23 +134,12 @@ bool WifiManager::ftmAP(const char* ssid, const char* password) {
 }
 
 void WifiManager::onFtmReport(arduino_event_t *event) {
-    
-    const char *status_str[5] = {"SUCCESS", "UNSUPPORTED", "CONF_REJECTED", "NO_RESPONSE", "FAIL"};
 
     wifi_event_ftm_report_t *report = &event->event_info.wifi_ftm_report;
-    WifiManager::getInstance().ftmSuccess = report->status == FTM_STATUS_SUCCESS;
-    if (WifiManager::getInstance().ftmSuccess) {
+    WifiManager::getInstance().ftmStatus = report->status;
+    WifiManager::getInstance().ftmDistance = report->dist_est;
 
-        char msgBuffer[256];
-        snprintf(msgBuffer, sizeof(msgBuffer), "FTM report status: %s, Distance: %.2f m, Return Time: %lu ns", status_str[report->status], (float)report->dist_est / 100.0, report->rtt_est);
-        LogManager::getInstance().info("WiFiManager", msgBuffer);
-
-        free(report->ftm_report_data);
-    } else {
-        char msgBuffer[64];
-        snprintf(msgBuffer, sizeof(msgBuffer), "FTM report status: %s", status_str[report->status]);
-        LogManager::getInstance().warning("WiFiManager", msgBuffer);
-    }
+    free(report->ftm_report_data);
     xSemaphoreGive(WifiManager::getInstance().ftmSemaphore);
 }
 
@@ -158,17 +147,12 @@ bool WifiManager::initiateFtm(uint8_t channel, byte mac[]) {
 
     RuntimeConfig& config = configManager.getRuntimeConfig();
 
-    char msgBuffer[256];
-    snprintf(msgBuffer, sizeof(msgBuffer), "Initiating FTM session channnel: %d, mac: %02X:%02X:%02X:%02X:%02X:%02X, frameCount: %d, burstPeriod: %d ms",
-                                    channel, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], config.wifi.ftmFrameCount, config.wifi.ftmBurstPeriod * 100);
-    log.info("WiFiManager", msgBuffer);
-
     if (!WiFi.initiateFTM(config.wifi.ftmFrameCount, config.wifi.ftmBurstPeriod, channel, mac)) {
         log.error("WiFiManager", "Failed to initiate FTM session");
         return false;
     }
     
-    return xSemaphoreTake(ftmSemaphore, portMAX_DELAY) == pdPASS && ftmSuccess;
+    return xSemaphoreTake(ftmSemaphore, portMAX_DELAY) == pdPASS && this->ftmStatus == FTM_STATUS_SUCCESS;
 }
 
 int WifiManager::scan(bool ftm = false){
@@ -181,8 +165,8 @@ int WifiManager::scan(bool ftm = false){
         snprintf(msgBuffer, sizeof(msgBuffer), "Found %d networks", n);
         log.info("WiFiManager", msgBuffer);
 
-        log.info("WiFiManager", "| Nr | SSID                             | RSSI | CH | MAC               |");
-        log.info("WiFiManager", "|----|----------------------------------|------|----|-------------------|");
+        Serial.printf("| SSID                             | RSSI | CH | MAC               | FTM Status    | Distance |\n");
+        Serial.printf("|----------------------------------|------|----|-------------------|---------------|----------|\n");
 
         for (int i = 0; i < n; ++i) {
 
@@ -190,10 +174,11 @@ int WifiManager::scan(bool ftm = false){
                 initiateFtm(WiFi.channel(i), WiFi.BSSID(i));
             }
 
-            snprintf(msgBuffer, sizeof(msgBuffer), "| %2d | %-32.32s | %4ld | %2ld | %02X:%02X:%02X:%02X:%02X:%02X | ",
-                        i + 1, WiFi.SSID(i).c_str(), WiFi.RSSI(i), WiFi.channel(i),
-                        WiFi.BSSID(i)[0], WiFi.BSSID(i)[1], WiFi.BSSID(i)[2], WiFi.BSSID(i)[3], WiFi.BSSID(i)[4], WiFi.BSSID(i)[5]);
-            log.info("WiFiManager", msgBuffer);
+            Serial.printf("| %-32.32s | %4ld | %2ld | %02X:%02X:%02X:%02X:%02X:%02X | %13s | %8.2f |\n",
+                        WiFi.SSID(i).c_str(), WiFi.RSSI(i), WiFi.channel(i),
+                        WiFi.BSSID(i)[0], WiFi.BSSID(i)[1], WiFi.BSSID(i)[2], WiFi.BSSID(i)[3], WiFi.BSSID(i)[4], WiFi.BSSID(i)[5],
+                        ftm ? ftm_status_str[ftmStatus] : "", (float)ftmDistance / 100.0);
+
         }
     }
 
