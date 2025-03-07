@@ -18,3 +18,16 @@ bool WifiCommand::startAccessPointCmd(const std::vector<String>& args, ICommandC
 
     return true;
 }
+
+bool WifiCommand::scanNetworksCmd(const std::vector<String>& args, ICommandContext& context) {
+    bool ftm = false;
+    if (args.size() > 1) {
+        ftm = args[1] == "true";
+    }
+
+    if (!wifiManager.scan(ftm)) {
+        context.sendResponse("Failed to scan networks\n");
+        return false;
+    }
+    return true;
+}
