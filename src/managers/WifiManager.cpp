@@ -139,6 +139,10 @@ void WifiManager::onFtmReport(arduino_event_t *event) {
     WifiManager::getInstance().ftmStatus = report->status;
     WifiManager::getInstance().ftmDistance = report->dist_est;
 
+    /*char msgBuffer[256];
+    snprintf(msgBuffer, sizeof(msgBuffer), "FTM Report: Status: %s, Distance: %d", WifiManager::getInstance().ftm_status_str[report->status], report->dist_est);
+    WifiManager::getInstance().log.debug("WifiManager", msgBuffer);*/
+
     free(report->ftm_report_data);
     xSemaphoreGive(WifiManager::getInstance().ftmSemaphore);
 }
@@ -148,7 +152,7 @@ bool WifiManager::initiateFtm(uint8_t channel, byte mac[]) {
     RuntimeConfig& config = configManager.getRuntimeConfig();
 
     if (!WiFi.initiateFTM(config.wifi.ftmFrameCount, config.wifi.ftmBurstPeriod, channel, mac)) {
-        log.error("WiFiManager", "Failed to initiate FTM session");
+        log.error("WifiManager", "Failed to initiate FTM session");
         return false;
     }
     
@@ -159,11 +163,11 @@ int WifiManager::scan(bool ftm = false){
     int n = WiFi.scanNetworks();
 
     if (n == 0) {
-        log.warning("WiFiManager", "No networks found");
+        log.warning("WifiManager", "No networks found");
     } else {
         char msgBuffer[256];
         snprintf(msgBuffer, sizeof(msgBuffer), "Found %d networks", n);
-        log.info("WiFiManager", msgBuffer);
+        log.info("WifiManager", msgBuffer);
 
         Serial.printf("| SSID                             | RSSI | CH | MAC               | FTM Status    | Distance |\n");
         Serial.printf("|----------------------------------|------|----|-------------------|---------------|----------|\n");

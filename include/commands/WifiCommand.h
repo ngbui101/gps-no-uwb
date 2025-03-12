@@ -13,6 +13,7 @@ private:
 
     bool startAccessPointCmd(const std::vector<String>& args, ICommandContext& context);
     bool scanNetworksCmd(const std::vector<String>& args, ICommandContext& context);
+    bool initiateFTMCmd(const std::vector<String>& args, ICommandContext& context);
 
 public:
     WifiCommand() 
@@ -37,6 +38,15 @@ public:
                 {"--ftm", "FTM for each network", false, "false"}
             };
             
+            subCommands["ftm"] = [this](const std::vector<String>& args, ICommandContext& context) {
+                return initiateFTMCmd(args, context);
+            };
+            subCommandDescriptions["ftm"] = "FTM for specified network";
+            subCommandParameters["ftm"] = {
+                {"--channel", "Channel of the target AP", true, ""},
+                {"--mac", "MAC Adress of the target AP", true, ""}
+            };
+
         }
 
         const char* getName() const override {
