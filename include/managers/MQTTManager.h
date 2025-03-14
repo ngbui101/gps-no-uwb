@@ -8,30 +8,30 @@
 #include "ConfigManager.h"
 #include "LogManager.h"
 
-typedef std::function<void(char*, uint8_t*, unsigned int)> MQTTCallback;
+typedef std::function<void(char *, uint8_t *, unsigned int)> MQTTCallback;
 
-struct Subscription {
+struct Subscription
+{
     String topic;
     MQTTCallback callback;
-    bool persistent;
+    bool isPersistent;
+    bool isActive;
 };
 
-class MQTTManager {
+class MQTTManager
+{
 private:
-    MQTTManager() 
-        : client(espClient)
-        , initialized(false)
-        , lastAttempt(0)
-        , log(LogManager::getInstance())
-        , configManager(ConfigManager::getInstance()) {
-            RuntimeConfig& config = configManager.getRuntimeConfig();
-            
-            snprintf(deviceTopic, sizeof(deviceTopic), "%s/%u", config.mqtt.baseTopic, static_cast<uint32_t>(config.device.chipID));
-            snprintf(clientId, sizeof(clientId), "%s-%x", config.device.name, static_cast<uint32_t>(config.device.chipID));
-        }
+    MQTTManager()
+        : client(espClient), initialized(false), lastAttempt(0), log(LogManager::getInstance()), configManager(ConfigManager::getInstance())
+    {
+        RuntimeConfig &config = configManager.getRuntimeConfig();
 
-    LogManager& log;
-    ConfigManager& configManager;
+        snprintf(deviceTopic, sizeof(deviceTopic), "%s/%u", config.mqtt.baseTopic, static_cast<uint32_t>(config.device.chipID));
+        snprintf(clientId, sizeof(clientId), "%s-%x", config.device.name, static_cast<uint32_t>(config.device.chipID));
+    }
+
+    LogManager &log;
+    ConfigManager &configManager;
 
     WiFiClient espClient;
     PubSubClient client;
@@ -42,14 +42,16 @@ private:
     char deviceTopic[128];
     char clientId[64];
 
-    void handleCallback(char* topic, uint8_t* payload, uint32_t length);
-    bool matchTopic(const char* pattern, const char* topic);
+    void handleSubscriptions();
+    void handleCallback(char *topic, uint8_t *payload, uint32_t length);
+    bool matchTopic(const char *pattern, const char *topic);
 
 public:
-    MQTTManager(const MQTTManager&) = delete;
-    void operator=(const MQTTManager&) = delete;
+    MQTTManager(const MQTTManager &) = delete;
+    void operator=(const MQTTManager &) = delete;
 
-    static MQTTManager& getInstance() {
+    static MQTTManager &getInstance()
+    {
         static MQTTManager instance;
         return instance;
     }
@@ -57,16 +59,16 @@ public:
     bool begin();
     bool connect();
     void disconnect();
-    bool subscribe(const char* topic, MQTTCallback callback, bool isPersistent = false);
-    bool unsubscribe(const char* topic);
-    bool publish(const char* topic, const char* payload, bool retained = false, bool isAbsoluteTopic = false);
+    bool subscribe(const char *topic, MQTTCallback callback, bool isPersistent = false);
+    bool unsubscribe(const char *topic);
+    bool publish(const char *topic, const char *payload, bool isRetained = false, bool isAbsoluteTopic = false);
     void update();
     bool isConnected();
-    bool isSubscribed(const char* topic);
+    bool isSubscribed(const char *topic);
 
-    PubSubClient& getClient() { return client; }
-    const char* getClientId() { return clientId; }
-    const char* getDeviceTopic() { return deviceTopic; }
+    PubSubClient &getClient() { return client; }
+    const char *getClientId() { return clientId; }
+    const char *getDeviceTopic() { return deviceTopic; }
 };
 
 #endif

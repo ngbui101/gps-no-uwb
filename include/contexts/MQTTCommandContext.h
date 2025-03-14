@@ -4,26 +4,36 @@
 #include "managers/MQTTManager.h"
 #include "interfaces/ICommandContext.h"
 
-class MQTTCommandContext : public ICommandContext {
+class MQTTCommandContext : public ICommandContext
+{
 public:
     MQTTCommandContext()
-        : mqttManager(MQTTManager::getInstance()) {
-            Serial.println(mqttManager.getDeviceTopic());
-            responseTopic = String(mqttManager.getDeviceTopic()) + "/response";
-        }
-
-    void sendResponse(const char* response) {
-        mqttManager.publish(responseTopic.c_str(), response);
+        : mqttManager(MQTTManager::getInstance())
+    {
     }
 
-    void setResponseTopic(const char* topic) {
+    void sendResponse(const char *response)
+    {
+        DynamicJsonDocument doc(2048);
+        doc["type"] = "info";
+        doc["source"] = "device";
+        doc["payload"] = response;
+
+        String payload;
+        serializeJson(doc, payload);
+
+        mqttManager.publish("response", payload.c_str());
+        mqttManager.publish("response_raw", response);
+    }
+
+    void setResponseTopic(const char *topic)
+    {
         responseTopic = topic;
     }
 
 private:
-    MQTTManager& mqttManager;
+    MQTTManager &mqttManager;
     String responseTopic;
-
 };
 
 #endif
