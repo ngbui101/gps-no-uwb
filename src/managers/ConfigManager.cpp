@@ -68,6 +68,8 @@ bool ConfigManager::validateConfig(const RuntimeConfig* pConfig, char* buffer, s
     snprintf(buffer, bufferSize, "device.statusUpdatesInterval has to be greater than 0");
     if (pConfig->device.statusUpdateInterval <= 0) return false;
     */
+
+    return true;
 }
 
 void ConfigManager::calculateHash(RuntimeConfig* config, char* hashBuffer, size_t hashBufferSize) {

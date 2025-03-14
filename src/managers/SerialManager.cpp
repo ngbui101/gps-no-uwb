@@ -11,7 +11,6 @@ void SerialManager::update() {
     if(Serial.available()) {
         char c = (char)Serial.read();
         processInput(c);
-
     }
 }
 

@@ -9,6 +9,8 @@
 #define VERSION_PATCH 1
 #define VERSION_STRING STRINGIFY(VERSION_MAJOR) "." STRINGIFY(VERSION_MINOR) "." STRINGIFY(VERSION_PATCH)
 
+#define JSON_DOC_SIZE 512
+
 #include <memory>
 #include <ArduinoJson.h>
 #include "managers/ConfigManager.h"
@@ -20,7 +22,8 @@
 #include "contexts/SerialCommandContext.h"
 #include "contexts/MQTTCommandContext.h"
 
-enum class DeviceStatus {
+enum class DeviceStatus
+{
     BOOTING,
     IDLE,
     SETUP,
@@ -32,53 +35,44 @@ enum class DeviceStatus {
 
 class IDeviceState;
 
-class Device {
+class Device
+{
 private:
-    Device() 
-        : currentState(nullptr)
-        , lastStatusUpdate(0)
-        , mqttManager(MQTTManager::getInstance())
-        , configManager(ConfigManager::getInstance())
-        , log(LogManager::getInstance())
-        , commandManager(CommandManager::getInstance())
-        , serialManager(SerialManager::getInstance()) {}
-    
-    MQTTManager& mqttManager;
-    ConfigManager& configManager;
-    CommandManager& commandManager;
-    LogManager& log;
-    SerialManager& serialManager;
+    Device()
+        : currentState(nullptr), lastStatusUpdate(0), mqttManager(MQTTManager::getInstance()), configManager(ConfigManager::getInstance()), log(LogManager::getInstance()), commandManager(CommandManager::getInstance()), serialManager(SerialManager::getInstance()) {}
 
-    static const size_t JSON_DOC_SIZE = 512;
-    IDeviceState* currentState;
+    MQTTManager &mqttManager;
+    ConfigManager &configManager;
+    CommandManager &commandManager;
+    LogManager &log;
+    SerialManager &serialManager;
+
+    IDeviceState *currentState;
     uint32_t lastStatusUpdate;
-    
+
     SerialCommandContext serialContext;
     std::unique_ptr<MQTTCommandContext> mqttContext;
 
     void sendDeviceStatus();
-    void registerCommands();
-    void handleSerialCommands();
     void updateDeviceStatus();
-    bool setupMQTTCommandListener();
-    void handleMQTTCommand(const char* topic, const uint8_t* payload, unsigned int length);
 
-    const char* getDeviceStatusString(DeviceStatus status);
-    constexpr size_t getDeviceStatusCount() {return static_cast<size_t>(DeviceStatus::__DELIMITER__);};
+    const char *getDeviceStatusString(DeviceStatus status);
+    constexpr size_t getDeviceStatusCount() { return static_cast<size_t>(DeviceStatus::__DELIMITER__); };
 
 public:
-    Device(const Device&) = delete;
-    void operator=(const Device&) = delete;
+    Device(const Device &) = delete;
+    void operator=(const Device &) = delete;
 
-    static Device& getInstance() {
+    static Device &getInstance()
+    {
         static Device instance;
         return instance;
     }
 
     bool begin();
-    void changeState(IDeviceState& newState);
+    void changeState(IDeviceState &newState);
     void update();
-    IDeviceState* getCurrentState() { return currentState; }
+    IDeviceState *getCurrentState() { return currentState; }
 };
 
 #endif

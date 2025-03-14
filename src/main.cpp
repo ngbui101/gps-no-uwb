@@ -2,15 +2,17 @@
 #include <Wire.h>
 #include "esp_system.h"
 #include "esp_log.h"
+#include "esp_core_dump.h"
 #include "managers/ConfigManager.h"
 #include "managers/LogManager.h"
 #include "states/IdleState.h"
 #include "states/TestState.h"
 #include "Device.h"
 
-
-void setup() {
+void setup()
+{
   esp_log_level_set("*", ESP_LOG_VERBOSE);
+  esp_core_dump_init();
 
   Serial.begin(MONITOR_SPEED);
   Serial.println(F("###################################################"));
@@ -21,19 +23,21 @@ void setup() {
   Serial.println();
   Serial.println(F("###################################################"));
 
-  Device& device = Device::getInstance();
+  Device &device = Device::getInstance();
 
-  if (!device.begin()) {
-      Serial.println(F("Failed to initialize device"));
-      while(true);
+  if (!device.begin())
+  {
+    Serial.println(F("Failed to initialize device"));
+    while (true)
+      ;
   }
 
   Serial.println("FINISHED DEVICE INIT");
 
-  device.changeState(TestState::getInstance(&device));
+  device.changeState(IdleState::getInstance(&device));
 }
 
-void loop() {
+void loop()
+{
   Device::getInstance().update();
 }
-
