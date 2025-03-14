@@ -6,15 +6,17 @@
 #include "interfaces/IExtendedCommand.h"
 #include "managers/CommandManager.h"
 
-class HelpCommand : public ICommand {
+class HelpCommand : public ICommand
+{
 public:
     HelpCommand() {}
 
-    const char* getName() const override { return "help"; }
-    const char* getDescription() const override { 
-        return "Lists all available commands. Usage: help [command]"; 
+    const char *getName() const override { return "help"; }
+    const char *getDescription() const override
+    {
+        return "Lists all available commands. Usage: help [command]";
     }
-    bool execute(const std::vector<String>& args, ICommandContext& context) override;
+    bool execute(const std::vector<String> &args, ICommandContext &context) override;
 
 private:
 };

@@ -4,9 +4,11 @@
 #include <Arduino.h>
 #include "interfaces/ICommandContext.h"
 
-class SerialCommandContext : public ICommandContext {
+class SerialCommandContext : public ICommandContext
+{
 public:
-    void sendResponse(const char* response) override {
+    void sendResponse(const char *response) override
+    {
         Serial.print(response);
     }
 };

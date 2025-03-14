@@ -1,62 +1,73 @@
 #include "states/UpdateState.h"
 
-void UpdateState::enter() {
+void UpdateState::enter()
+{
     log.debug("UpdateState", "Entering Update State");
     currentPhase = UpdatePhase::CHECK_VERSION;
 }
 
-void UpdateState::update(){
-    if(!checkUpdateConditions()) {
+void UpdateState::update()
+{
+    if (!checkUpdateConditions())
+    {
         device->changeState(ActionState::getInstance(device));
         return;
     }
 
-    switch(currentPhase) {
-        case UpdatePhase::CHECK_VERSION:
-            if(checkLatestRelease()) {
-                currentPhase = UpdatePhase::DOWNLOAD;
-            } else {
-                //TODO: Jump back to RECENT/CALLER state
-                device->changeState(ActionState::getInstance(device));
-            }
+    switch (currentPhase)
+    {
+    case UpdatePhase::CHECK_VERSION:
+        if (checkLatestRelease())
+        {
+            currentPhase = UpdatePhase::DOWNLOAD;
+        }
+        else
+        {
+            // TODO: Jump back to RECENT/CALLER state
+            device->changeState(ActionState::getInstance(device));
+        }
 
-            break;
-        case UpdatePhase::DOWNLOAD:
-            if(downloadAndInstall()) {
-                currentPhase = UpdatePhase::COMPLETED;
-            }
+        break;
+    case UpdatePhase::DOWNLOAD:
+        if (downloadAndInstall())
+        {
+            currentPhase = UpdatePhase::COMPLETED;
+        }
 
-            break;
-        case UpdatePhase::INSTALL:
-            break;
-        case UpdatePhase::COMPLETED:
-            if(Update.isFinished()) {
-                reportProgress("Update completed, restarting device...", 100);
-                delay(1000);
-                ESP.restart();
-            }
+        break;
+    case UpdatePhase::INSTALL:
+        break;
+    case UpdatePhase::COMPLETED:
+        if (Update.isFinished())
+        {
+            reportProgress("Update completed, restarting device...", 100);
+            delay(1000);
+            ESP.restart();
+        }
 
-            break;
-        case UpdatePhase::FAILED:
-            handleUpdateError("Update failed");
-            device->changeState(ErrorState::getInstance(device));
-            
-            break;
-        default:
-            break;
+        break;
+    case UpdatePhase::FAILED:
+        handleUpdateError("Update failed");
+        device->changeState(ErrorState::getInstance(device));
+
+        break;
+    default:
+        break;
     }
-
 }
 
-void UpdateState::exit() {
+void UpdateState::exit()
+{
     log.debug("UpdateState", "Exiting UpdateState");
 }
 
-bool UpdateState::checkUpdateConditions() {
+bool UpdateState::checkUpdateConditions()
+{
     uint32_t now = millis();
-    RuntimeConfig& config = configManager.getRuntimeConfig();
+    RuntimeConfig &config = configManager.getRuntimeConfig();
 
-    if(lastUpdateCheck == 0 || (now - lastUpdateCheck) >= config.update.interval) {
+    if (lastUpdateCheck == 0 || (now - lastUpdateCheck) >= config.update.interval)
+    {
         lastUpdateCheck = now;
         return true;
     }
@@ -64,9 +75,10 @@ bool UpdateState::checkUpdateConditions() {
     return false;
 }
 
-bool UpdateState::checkLatestRelease() {
+bool UpdateState::checkLatestRelease()
+{
     HTTPClient http;
-    RuntimeConfig& config = configManager.getRuntimeConfig();
+    RuntimeConfig &config = configManager.getRuntimeConfig();
 
     http.begin(config.update.apiUrl);
     http.addHeader("Accept", "application/vnd.github+json");
@@ -75,12 +87,14 @@ bool UpdateState::checkLatestRelease() {
     http.addHeader("User-Agent", "ESP32");
 
     int httpCode = http.GET();
-    if (httpCode == HTTP_CODE_NOT_FOUND) {
+    if (httpCode == HTTP_CODE_NOT_FOUND)
+    {
         reportProgress("No releases found");
         return false;
     }
-    
-    if (httpCode != HTTP_CODE_OK) {
+
+    if (httpCode != HTTP_CODE_OK)
+    {
         char msgBuffer[64];
         snprintf(msgBuffer, sizeof(msgBuffer), "Failed to check for updates: %d", httpCode);
         reportProgress(msgBuffer);
@@ -88,41 +102,48 @@ bool UpdateState::checkLatestRelease() {
     }
 
     String response = http.getString();
-    if (response.length() == 0) {
+    if (response.length() == 0)
+    {
         reportProgress("Empty response from update server");
         return false;
     }
 
     StaticJsonDocument<1024> doc;
     DeserializationError error = deserializeJson(doc, response);
-    if (error) {
+    if (error)
+    {
         reportProgress("Failed to parse update info");
         return false;
     }
 
-    const char* tagName = doc["tag_name"];
-    if (!tagName) {
+    const char *tagName = doc["tag_name"];
+    if (!tagName)
+    {
         reportProgress("No version tag found");
         return false;
     }
 
     bool foundFirmware = false;
     JsonArray assets = doc["assets"];
-    for(JsonVariant asset : assets) {
-        const char* name = asset["name"];
-        if(strcmp(name, "firmware.bin") == 0) {
+    for (JsonVariant asset : assets)
+    {
+        const char *name = asset["name"];
+        if (strcmp(name, "firmware.bin") == 0)
+        {
             downloadUrl = asset["browser_download_url"].as<String>();
             foundFirmware = true;
             break;
         }
     }
 
-    if (!foundFirmware) {
+    if (!foundFirmware)
+    {
         reportProgress("No firmware found in release");
         return false;
     }
 
-    if(compareVersion(VERSION_STRING, tagName)) {
+    if (compareVersion(VERSION_STRING, tagName))
+    {
         newVersion = tagName;
         char msgBuffer[128];
         snprintf(msgBuffer, sizeof(msgBuffer), "New version available: %s", tagName);
@@ -136,12 +157,13 @@ bool UpdateState::checkLatestRelease() {
     return false;
 }
 
-
-bool UpdateState::downloadAndInstall(){
-    if(downloadUrl.length() == 0) {
+bool UpdateState::downloadAndInstall()
+{
+    if (downloadUrl.length() == 0)
+    {
         currentPhase = UpdatePhase::FAILED;
         handleUpdateError("No download URL available");
-    
+
         return false;
     }
 
@@ -150,30 +172,35 @@ bool UpdateState::downloadAndInstall(){
     http.begin(downloadUrl);
 
     int httpCode = http.GET();
-    if(httpCode == HTTP_CODE_OK) {
+    if (httpCode == HTTP_CODE_OK)
+    {
         totalBytes = http.getSize();
-        WiFiClient* stream  = http.getStreamPtr();
+        WiFiClient *stream = http.getStreamPtr();
 
-        if(!Update.begin(totalBytes)){
+        if (!Update.begin(totalBytes))
+        {
             currentPhase = UpdatePhase::FAILED;
             handleUpdateError("Update could not begin");
-            
+
             return false;
         }
 
         size_t written = 0;
         uint8_t buffer[128] = {0};
 
-        while(http.connected() && (written < totalBytes)) {
+        while (http.connected() && (written < totalBytes))
+        {
             size_t streamLength = stream->available();
-            if(streamLength > 0) {
+            if (streamLength > 0)
+            {
                 size_t bytesRemaining = streamLength > size_t(sizeof(buffer)) ? sizeof(buffer) : streamLength;
                 size_t bytesRead = stream->readBytes(buffer, bytesRemaining);
 
-                if(Update.write(buffer, bytesRead) != bytesRead) {
+                if (Update.write(buffer, bytesRead) != bytesRead)
+                {
                     currentPhase = UpdatePhase::FAILED;
                     handleUpdateError("Error writing to flash");
-                 
+
                     return false;
                 }
 
@@ -184,26 +211,30 @@ bool UpdateState::downloadAndInstall(){
             delay(1);
         }
 
-        if(written == totalBytes && Update.end(true)) {
+        if (written == totalBytes && Update.end(true))
+        {
             reportProgress("Download and installation completed", 100);
-            
+
             return true;
-        } 
+        }
     }
 
     http.end();
     Update.abort();
     currentPhase = UpdatePhase::FAILED;
-    
+
     return false;
 }
 
-bool UpdateState::compareVersion(const char* versionA, const char* versionB) {
-    if(newVersion[0] == 'v') {
+bool UpdateState::compareVersion(const char *versionA, const char *versionB)
+{
+    if (newVersion[0] == 'v')
+    {
         versionB++;
     }
 
-    if(versionA[0] == 'v') {
+    if (versionA[0] == 'v')
+    {
         versionA++;
     }
 
@@ -211,12 +242,15 @@ bool UpdateState::compareVersion(const char* versionA, const char* versionB) {
     sscanf(versionA, "%d.%d.%d", &currentVersion[0], &currentVersion[1], &currentVersion[2]);
     sscanf(versionB, "%d.%d.%d", &newVersion[0], &newVersion[1], &newVersion[2]);
 
-    for(int i=0; i<3; i++) {
-        if(newVersion[i] > currentVersion[i]) {
+    for (int i = 0; i < 3; i++)
+    {
+        if (newVersion[i] > currentVersion[i])
+        {
             return true;
         }
 
-        if(newVersion[i] < currentVersion[i]) {
+        if (newVersion[i] < currentVersion[i])
+        {
             return false;
         }
     }
@@ -224,38 +258,45 @@ bool UpdateState::compareVersion(const char* versionA, const char* versionB) {
     return false;
 }
 
-void UpdateState::reportProgress(const char* status, int progress){
-    if(mqttManager.isConnected()) {
+void UpdateState::reportProgress(const char *status, int progress)
+{
+    if (mqttManager.isConnected())
+    {
         StaticJsonDocument<256> doc;
         doc["status"] = status;
 
-        if(progress >= 0) {
+        if (progress >= 0)
+        {
             doc["progress"] = progress;
         }
-        if(newVersion.length() > 0) {
+        if (newVersion.length() > 0)
+        {
             doc["version"] = newVersion;
         }
 
-        String topic = String(mqttManager.getDeviceTopic())  + "/update";
+        String topic = String(mqttManager.getDeviceTopic()) + "/update";
         String payload;
         serializeJson(doc, payload);
 
         mqttManager.publish(topic.c_str(), payload.c_str());
     }
 
-    if(progress >= 0) {
+    if (progress >= 0)
+    {
         char msgBuffer[128];
         snprintf(msgBuffer, sizeof(msgBuffer), "%s (%d%%)", status, progress);
         log.info("UpdateState", msgBuffer);
-    } else {
+    }
+    else
+    {
         log.info("UpdateState", status);
     }
 }
 
-void UpdateState::handleUpdateError(const char* message) {
+void UpdateState::handleUpdateError(const char *message)
+{
     ErrorState::getInstance(device).setError(
         ErrorCode::UPDATE_FAILED,
         this,
-        message
-    );
+        message);
 }

@@ -7,7 +7,8 @@
 #include "WiFi.h"
 #include "ConfigDefines.h"
 
-namespace ConfigLimits {
+namespace ConfigLimits
+{
     constexpr size_t CONFIG_DEVICE_NAME_MAX_LENGTH = 32;
     constexpr size_t CONFIG_DEVICE_FIRMWARE_VERSION_MAX_LENGTH = 16;
     constexpr size_t CONFIG_DEVICE_MAC_ADDRESS_MAX_LENGTH = 18;
@@ -25,8 +26,10 @@ namespace ConfigLimits {
     constexpr size_t CONFIG_HASH_MAX_LENGTH = 33;
 }
 
-struct RuntimeConfig {
-    struct {
+struct RuntimeConfig
+{
+    struct
+    {
         char name[ConfigLimits::CONFIG_DEVICE_NAME_MAX_LENGTH];
         char firmwareVersion[ConfigLimits::CONFIG_DEVICE_FIRMWARE_VERSION_MAX_LENGTH];
         uint64_t chipID;
@@ -34,7 +37,8 @@ struct RuntimeConfig {
         uint32_t statusUpdateInterval;
     } device;
 
-    struct {
+    struct
+    {
         char ssid[ConfigLimits::CONFIG_WIFI_SSID_MAX_LENGTH];
         char password[ConfigLimits::CONFIG_WIFI_PASSWORD_MAX_LENGTH];
         bool autoReconnect;
@@ -45,7 +49,8 @@ struct RuntimeConfig {
         uint16_t ftmBurstPeriod = 2;
     } wifi;
 
-    struct {
+    struct
+    {
         char broker[ConfigLimits::CONFIG_MQTT_BROKER_MAX_LENGTH];
         uint16_t port;
         char user[ConfigLimits::CONFIG_MQTT_USER_MAX_LENGTH];
@@ -55,25 +60,29 @@ struct RuntimeConfig {
         uint8_t maxConnectionAttempts;
     } mqtt;
 
-    struct {
+    struct
+    {
         char serviceUUID[ConfigLimits::CONFIG_BLUETOOTH_SERVICE_UUID_MAX_LENGTH];
         char charUUID[ConfigLimits::CONFIG_BLUETOOTH_CHAR_UUID_MAX_LENGTH];
         uint32_t timeout;
         uint8_t maxConnections;
     } bluetooth;
-    
-    struct {
+
+    struct
+    {
         uint8_t maxRecoveryAttempts;
         uint32_t recoveryInterval;
     } error;
 
-    struct {
+    struct
+    {
         bool allowMqttLog;
         char mqttTopic[ConfigLimits::CONFIG_LOGGING_MQTT_TOPIC_MAX_LENGTH];
         uint8_t logLevel;
     } logging;
 
-    struct {
+    struct
+    {
         char apiUrl[ConfigLimits::CONFIG_UPDATE_API_URL_MAX_LENGTH];
         char apiToken[ConfigLimits::CONFIG_UPDATE_API_TOKEN_MAX_LENGTH];
         uint32_t interval;
@@ -83,7 +92,8 @@ struct RuntimeConfig {
     char hash[ConfigLimits::CONFIG_HASH_MAX_LENGTH];
 };
 
-enum class ConfigError {
+enum class ConfigError
+{
     NONE,
     FLASH_MOUNT_FAILED,
     FILE_NOT_FOUND,
@@ -92,36 +102,39 @@ enum class ConfigError {
     VALIDATION_ERROR
 };
 
-class ConfigManager {
+class ConfigManager
+{
 private:
-    ConfigManager() : initialized(false) {
+    ConfigManager() : initialized(false)
+    {
         loadDefaults();
     }
-    
+
     RuntimeConfig config;
-    static constexpr const char* CONFIG_FILE = "/config.bin";
+    static constexpr const char *CONFIG_FILE = "/config.bin";
     bool initialized;
 
-    void calculateHash(RuntimeConfig* config, char* hashBuffer, size_t hashBufferSize);
-    bool validateConfig(const RuntimeConfig* pConfig, char* buffer, size_t bufferSize);
+    void calculateHash(RuntimeConfig *config, char *hashBuffer, size_t hashBufferSize);
+    bool validateConfig(const RuntimeConfig *pConfig, char *buffer, size_t bufferSize);
     bool loadFromFlash();
     bool saveToFlash();
     void loadDefaults();
-    void setConfigFromDefines(RuntimeConfig* config);
+    void setConfigFromDefines(RuntimeConfig *config);
 
 public:
-    ConfigManager(const ConfigManager&) = delete;
-    void operator=(const ConfigManager&) = delete;
+    ConfigManager(const ConfigManager &) = delete;
+    void operator=(const ConfigManager &) = delete;
 
-    static ConfigManager& getInstance(){
+    static ConfigManager &getInstance()
+    {
         static ConfigManager instance;
         return instance;
     }
     bool begin();
-    RuntimeConfig& getRuntimeConfig() { return config; }
+    RuntimeConfig &getRuntimeConfig() { return config; }
     bool hasConfigDefinesChanged();
     void updateDeviceConfig();
-    void print(RuntimeConfig* config);
+    void print(RuntimeConfig *config);
 };
 
 #endif

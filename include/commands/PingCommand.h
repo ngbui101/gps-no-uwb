@@ -3,21 +3,24 @@
 
 #include "interfaces/ICommand.h"
 
-class PingCommand : public ICommand {
+class PingCommand : public ICommand
+{
 public:
-    const char* getName() const override {
+    const char *getName() const override
+    {
         return "ping";
     }
 
-    const char* getDescription() const override {
+    const char *getDescription() const override
+    {
         return "Ping the server.";
     }
 
-    bool execute(const std::vector<String>& args, ICommandContext& context) override {
+    bool execute(const std::vector<String> &args, ICommandContext &context) override
+    {
         context.sendResponse("Pong!");
         return true;
     }
-
 };
 
 #endif

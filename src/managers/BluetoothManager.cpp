@@ -1,81 +1,94 @@
 #include "managers/BluetoothManager.h"
 
-void BluetoothManager::ServerCallbacks::onConnect(BLEServer* pServer) {
+void BluetoothManager::ServerCallbacks::onConnect(BLEServer *pServer)
+{
     manager.status = BluetoothStatus::ADVERTISING;
     manager.updatePayload();
     manager.log.info("BluetoothManager", "Device is advertising");
 }
 
-void BluetoothManager::ServerCallbacks::onDisconnect(BLEServer* pServer) { 
+void BluetoothManager::ServerCallbacks::onDisconnect(BLEServer *pServer)
+{
     manager.status = BluetoothStatus::DISCONNECTED;
     manager.updatePayload();
     manager.log.info("BluetoothManager", "Device is no longer advertising");
 }
 
-void BluetoothManager::ClientCallbacks::onConnect(BLEClient* pClient) {
+void BluetoothManager::ClientCallbacks::onConnect(BLEClient *pClient)
+{
     manager.status = BluetoothStatus::CONNECTED;
     manager.updatePayload();
     manager.log.info("BluetoothManager", "Connected to device");
 }
 
-void BluetoothManager::ClientCallbacks::onDisconnect(BLEClient* pClient) {
+void BluetoothManager::ClientCallbacks::onDisconnect(BLEClient *pClient)
+{
     manager.status = BluetoothStatus::DISCONNECTED;
     manager.updatePayload();
     manager.log.info("BluetoothManager", "Disconnected from device");
 }
 
-bool BluetoothManager::begin() {
-    if (status != BluetoothStatus::UNINITIALIZED) {
+bool BluetoothManager::begin()
+{
+    if (status != BluetoothStatus::UNINITIALIZED)
+    {
         return true;
     }
     log.debug("BluetoothManager", "Initializing Bluetooth...");
 
-    const RuntimeConfig& config = configManager.getRuntimeConfig();
+    const RuntimeConfig &config = configManager.getRuntimeConfig();
     BLEDevice::init(config.device.name);
     status = BluetoothStatus::INITIALIZED;
 
     return true;
 }
 
-bool BluetoothManager::setMode(BluetoothMode mode) {
-   if(mode == this->mode) {
-       return true;
-   }
+bool BluetoothManager::setMode(BluetoothMode mode)
+{
+    if (mode == this->mode)
+    {
+        return true;
+    }
 
-   cleanup();
+    cleanup();
 
-   this->mode = mode;
-   status = BluetoothStatus::UNINITIALIZED;
+    this->mode = mode;
+    status = BluetoothStatus::UNINITIALIZED;
 
-   switch(mode) {
-        case BluetoothMode::SERVER:
-            return initServer();
-        case BluetoothMode::CLIENT:
-            return initClient();
-        case BluetoothMode::NONE:
-            log.info("BluetoothManager", "Bluetooth is disabled");
-            return true;    
-        default:
-            log.error("BluetoothManager", "Invalid mode");
-            return false;
-   }
+    switch (mode)
+    {
+    case BluetoothMode::SERVER:
+        return initServer();
+    case BluetoothMode::CLIENT:
+        return initClient();
+    case BluetoothMode::NONE:
+        log.info("BluetoothManager", "Bluetooth is disabled");
+        return true;
+    default:
+        log.error("BluetoothManager", "Invalid mode");
+        return false;
+    }
 }
 
-void BluetoothManager::cleanup() {
+void BluetoothManager::cleanup()
+{
     disconnect();
 
-    if (pServer) {
+    if (pServer)
+    {
         pServer->getAdvertising()->stop();
         delete pServer;
         pServer = nullptr;
     }
 
-    if(pClient) {
+    if (pClient)
+    {
         delete pClient;
         pClient = nullptr;
     }
 
-    if (pCharacteristic) {
+    if (pCharacteristic)
+    {
         delete pCharacteristic;
         pCharacteristic = nullptr;
     }
@@ -84,37 +97,40 @@ void BluetoothManager::cleanup() {
     mode = BluetoothMode::NONE;
 }
 
-bool BluetoothManager::initServer() {
+bool BluetoothManager::initServer()
+{
     log.info("BluetoothManager", "Initializing server");
-    RuntimeConfig& config = configManager.getRuntimeConfig();
+    RuntimeConfig &config = configManager.getRuntimeConfig();
 
     pServer = BLEDevice::createServer();
-    if (!pServer) {
+    if (!pServer)
+    {
         log.error("BluetoothManager", "Failed to create server");
         return false;
     }
 
     pServer->setCallbacks(new ServerCallbacks(*this));
 
-    BLEService* pDeviceInfoService = pServer->createService((uint16_t)0x180A);
-    if (!pDeviceInfoService) {
+    BLEService *pDeviceInfoService = pServer->createService((uint16_t)0x180A);
+    if (!pDeviceInfoService)
+    {
         log.error("BluetoothManager", "Failed to create device info service");
         return false;
     }
 
-    BLEService* pCustomService = pServer->createService(
-        configManager.getRuntimeConfig().bluetooth.serviceUUID
-    );
-    if (!pCustomService) {
+    BLEService *pCustomService = pServer->createService(
+        configManager.getRuntimeConfig().bluetooth.serviceUUID);
+    if (!pCustomService)
+    {
         log.error("BluetoothManager", "Failed to create custom service");
         return false;
     }
 
     pCharacteristic = pCustomService->createCharacteristic(
         config.bluetooth.charUUID,
-        BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY
-    );
-    if (!pCharacteristic) {
+        BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
+    if (!pCharacteristic)
+    {
         log.error("BluetoothManager", "Failed to create characteristic");
         return false;
     }
@@ -131,11 +147,13 @@ bool BluetoothManager::initServer() {
     return true;
 }
 
-bool BluetoothManager::initClient() {
+bool BluetoothManager::initClient()
+{
     log.info("BluetoothManager", "Initializing client");
-    
+
     pClient = BLEDevice::createClient();
-    if (!pClient) {
+    if (!pClient)
+    {
         log.error("BluetoothManager", "Failed to create client");
         return false;
     }
@@ -147,15 +165,17 @@ bool BluetoothManager::initClient() {
     return true;
 }
 
-bool BluetoothManager::connect(const char* target) {
-    if(mode != BluetoothMode::CLIENT) {
+bool BluetoothManager::connect(const char *target)
+{
+    if (mode != BluetoothMode::CLIENT)
+    {
         log.error("BluetoothManager", "Cannot connect in server mode");
         return false;
     }
 
-    const RuntimeConfig& config = configManager.getRuntimeConfig();
+    const RuntimeConfig &config = configManager.getRuntimeConfig();
 
-    BLEScan* pBLEScan = BLEDevice::getScan();
+    BLEScan *pBLEScan = BLEDevice::getScan();
     pBLEScan->setActiveScan(true);
 
     char buffer[128];
@@ -163,11 +183,14 @@ bool BluetoothManager::connect(const char* target) {
     log.info("BluetoothManager", buffer);
 
     BLEScanResults results = pBLEScan->start(config.bluetooth.timeout);
-    
-    for(int i = 0; i < results.getCount(); i++) {
+
+    for (int i = 0; i < results.getCount(); i++)
+    {
         BLEAdvertisedDevice advertisedDevice = results.getDevice(i);
-        if(advertisedDevice.getName() == target) {
-            if (pClient->connect(&advertisedDevice)) {
+        if (advertisedDevice.getName() == target)
+        {
+            if (pClient->connect(&advertisedDevice))
+            {
                 log.info("BluetoothManager", "Connection successful");
                 return true;
             }
@@ -181,10 +204,14 @@ bool BluetoothManager::connect(const char* target) {
     return false;
 }
 
-void BluetoothManager::disconnect() {
-    if(mode == BluetoothMode::SERVER && pServer) {
+void BluetoothManager::disconnect()
+{
+    if (mode == BluetoothMode::SERVER && pServer)
+    {
         pServer->getAdvertising()->stop();
-    } else if(mode == BluetoothMode::CLIENT && pClient) {
+    }
+    else if (mode == BluetoothMode::CLIENT && pClient)
+    {
         pClient->disconnect();
     }
 
@@ -192,20 +219,24 @@ void BluetoothManager::disconnect() {
     log.info("BluetoothManager", "Disconnected");
 }
 
-void BluetoothManager::updatePayload() {
-    if (!pCharacteristic) {
+void BluetoothManager::updatePayload()
+{
+    if (!pCharacteristic)
+    {
         return;
     }
 
-    if (mode == BluetoothMode::SERVER && status != BluetoothStatus::ADVERTISING) {
+    if (mode == BluetoothMode::SERVER && status != BluetoothStatus::ADVERTISING)
+    {
         return;
     }
 
-    if (mode == BluetoothMode::CLIENT && status != BluetoothStatus::CONNECTED) {
+    if (mode == BluetoothMode::CLIENT && status != BluetoothStatus::CONNECTED)
+    {
         return;
     }
 
-    const RuntimeConfig& config = configManager.getRuntimeConfig();
+    const RuntimeConfig &config = configManager.getRuntimeConfig();
 
     DynamicJsonDocument doc(256);
     doc["device_id"] = config.device.name;
@@ -214,13 +245,15 @@ void BluetoothManager::updatePayload() {
 
     String payload;
     serializeJson(doc, payload);
-    
+
     pCharacteristic->setValue(payload.c_str());
     pCharacteristic->notify();
 }
 
-void BluetoothManager::update(){
-    if(status == BluetoothStatus::ADVERTISING && mode == BluetoothMode::SERVER ) {
+void BluetoothManager::update()
+{
+    if (status == BluetoothStatus::ADVERTISING && mode == BluetoothMode::SERVER)
+    {
         updatePayload();
     }
 }

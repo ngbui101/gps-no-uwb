@@ -1,6 +1,7 @@
 #include "managers/ConfigManager.h"
 
-void ConfigManager::loadDefaults() {
+void ConfigManager::loadDefaults()
+{
     setConfigFromDefines(&config);
 
     config.device.chipID = ESP.getEfuseMac();
@@ -11,7 +12,7 @@ void ConfigManager::loadDefaults() {
 
     String modifiedMac = mac;
     modifiedMac.replace(":", "");
-    
+
     snprintf(config.bluetooth.serviceUUID, sizeof(config.bluetooth.serviceUUID),
              "%s-0000-5000-8000-000000000000",
              modifiedMac.c_str());
@@ -20,15 +21,15 @@ void ConfigManager::loadDefaults() {
              "%s-0000-5000-8000-000000000001",
              modifiedMac.c_str());
 
-
     char hashBuffer[ConfigLimits::CONFIG_HASH_MAX_LENGTH];
     calculateHash(&config, hashBuffer, sizeof(hashBuffer));
-    
+
     strncpy(config.hash, hashBuffer, sizeof(hashBuffer));
     config.hash[sizeof(config.hash) - 1] = '\0';
 }
 
-void ConfigManager::print(RuntimeConfig* config) {
+void ConfigManager::print(RuntimeConfig *config)
+{
     Serial.printf("Device Name: %s\n", config->device.name);
     Serial.printf("Firmware Version: %s\n", config->device.firmwareVersion);
     Serial.printf("WiFi SSID: %s\n", config->wifi.ssid);
@@ -61,7 +62,8 @@ void ConfigManager::print(RuntimeConfig* config) {
     Serial.printf("Config Hash: %s\n", config->hash);
 }
 
-bool ConfigManager::validateConfig(const RuntimeConfig* pConfig, char* buffer, size_t bufferSize) {
+bool ConfigManager::validateConfig(const RuntimeConfig *pConfig, char *buffer, size_t bufferSize)
+{
     /*
     TODO: Validation check if config parameters are valid (e.g. not empty, too long, etc.)
 
@@ -72,11 +74,12 @@ bool ConfigManager::validateConfig(const RuntimeConfig* pConfig, char* buffer, s
     return true;
 }
 
-void ConfigManager::calculateHash(RuntimeConfig* config, char* hashBuffer, size_t hashBufferSize) {
+void ConfigManager::calculateHash(RuntimeConfig *config, char *hashBuffer, size_t hashBufferSize)
+{
     MD5Builder md5;
     md5.begin();
-    
-    String configString = 
+
+    String configString =
         String(config->device.name) +
         String(config->wifi.ssid) +
         String(config->wifi.password) +
@@ -92,28 +95,36 @@ void ConfigManager::calculateHash(RuntimeConfig* config, char* hashBuffer, size_
     md5.toString().toCharArray(hashBuffer, sizeof(hashBuffer));
 }
 
-bool ConfigManager::begin() {
-    if (initialized) return true;
+bool ConfigManager::begin()
+{
+    if (initialized)
+        return true;
 
-    if (ESP.getFreeHeap() < 10000) {
+    if (ESP.getFreeHeap() < 10000)
+    {
         Serial.println("Free Heap: " + String(ESP.getFreeHeap()));
     }
 
-    if(!LittleFS.begin(true)) {
+    if (!LittleFS.begin(true))
+    {
         Serial.println("Failed to mount file system");
         loadDefaults();
-        
+
         return false;
     }
 
-    if (LittleFS.totalBytes() - LittleFS.usedBytes() < sizeof(RuntimeConfig)) {
+    if (LittleFS.totalBytes() - LittleFS.usedBytes() < sizeof(RuntimeConfig))
+    {
         Serial.println(F("Warning: Low storage space"));
     }
 
-    if(!DEBUG_FORCE_CONFIG){
-        if(!loadFromFlash()) {
-            Serial.println(F("Failed to load config from flash, using defaults"));        
-            if (!saveToFlash()) {
+    if (!DEBUG_FORCE_CONFIG)
+    {
+        if (!loadFromFlash())
+        {
+            Serial.println(F("Failed to load config from flash, using defaults"));
+            if (!saveToFlash())
+            {
                 Serial.println(F("Failed to save defaults to flash"));
                 return false;
             }
@@ -124,10 +135,11 @@ bool ConfigManager::begin() {
     return true;
 }
 
-void ConfigManager::setConfigFromDefines(RuntimeConfig* config) {
+void ConfigManager::setConfigFromDefines(RuntimeConfig *config)
+{
     memset(config, 0, sizeof(RuntimeConfig));
 
-    #define SAFE_STRLCPY(dest, src) strlcpy(dest, src, sizeof(dest))
+#define SAFE_STRLCPY(dest, src) strlcpy(dest, src, sizeof(dest))
 
     /* #### DEVICE #### */
     SAFE_STRLCPY(config->device.name, DEVICE_NAME);
@@ -171,17 +183,21 @@ void ConfigManager::setConfigFromDefines(RuntimeConfig* config) {
     config->update.interval = UPDATE_INTERVAL;
     config->update.initialCheck = UPDATE_INITIAL_CHECK;
 
-    #undef SAFE_STRLCPY
+#undef SAFE_STRLCPY
 }
 
-bool ConfigManager::loadFromFlash() {
+bool ConfigManager::loadFromFlash()
+{
     File file = LittleFS.open(CONFIG_FILE, "r");
-    if(!file || file.size() != sizeof(RuntimeConfig)) {
-        if (file) file.close();
+    if (!file || file.size() != sizeof(RuntimeConfig))
+    {
+        if (file)
+            file.close();
         return false;
     }
 
-    if (file.readBytes((char*)&config, sizeof(RuntimeConfig)) != sizeof(RuntimeConfig)) {
+    if (file.readBytes((char *)&config, sizeof(RuntimeConfig)) != sizeof(RuntimeConfig))
+    {
         file.close();
         return false;
     }
@@ -190,13 +206,16 @@ bool ConfigManager::loadFromFlash() {
     return true;
 }
 
-bool ConfigManager::saveToFlash() {
+bool ConfigManager::saveToFlash()
+{
     File file = LittleFS.open(CONFIG_FILE, "w");
-    if(!file) {
+    if (!file)
+    {
         return false;
     }
 
-    if (file.write((const uint8_t*)&config, sizeof(RuntimeConfig)) != sizeof(RuntimeConfig)) {
+    if (file.write((const uint8_t *)&config, sizeof(RuntimeConfig)) != sizeof(RuntimeConfig))
+    {
         file.close();
         return false;
     }
@@ -205,18 +224,20 @@ bool ConfigManager::saveToFlash() {
     return true;
 }
 
-bool ConfigManager::hasConfigDefinesChanged() {
+bool ConfigManager::hasConfigDefinesChanged()
+{
     RuntimeConfig defaultConfig;
     setConfigFromDefines(&defaultConfig);
 
     char hashBuffer[ConfigLimits::CONFIG_HASH_MAX_LENGTH];
     calculateHash(&defaultConfig, hashBuffer, sizeof(hashBuffer));
-    
+
     Serial.printf("File Config Hash: %s - Stored Config Hash: %s\n", hashBuffer, config.hash);
     return strcmp(hashBuffer, config.hash) != 0;
 }
 
-void ConfigManager::updateDeviceConfig() {
+void ConfigManager::updateDeviceConfig()
+{
     loadDefaults();
     saveToFlash();
     Serial.println(F("Updated config"));

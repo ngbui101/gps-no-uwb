@@ -3,21 +3,21 @@
 
 #include <Device.h>
 
-class TestState : public IDeviceState {
+class TestState : public IDeviceState
+{
 private:
-    TestState(Device* device) 
-        : IDeviceState(device, StateIdentifier::TEST_STATE)
-        , log(LogManager::getInstance())
-        , configManager(ConfigManager::getInstance()) {};
-    
-    LogManager& log;
-    ConfigManager& configManager;
+    TestState(Device *device)
+        : IDeviceState(device, StateIdentifier::TEST_STATE), log(LogManager::getInstance()), configManager(ConfigManager::getInstance()) {};
+
+    LogManager &log;
+    ConfigManager &configManager;
 
 public:
-    TestState(const TestState&) = delete;
-    void operator=(const TestState&) = delete;
+    TestState(const TestState &) = delete;
+    void operator=(const TestState &) = delete;
 
-    static TestState& getInstance(Device* device) {
+    static TestState &getInstance(Device *device)
+    {
         static TestState instance(device);
         return instance;
     }
@@ -25,6 +25,6 @@ public:
     void enter() override;
     void update() override;
     void exit() override;
-}; 
+};
 
 #endif

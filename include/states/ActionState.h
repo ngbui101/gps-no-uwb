@@ -3,21 +3,21 @@
 
 #include "Device.h"
 
-class ActionState : public IDeviceState {
+class ActionState : public IDeviceState
+{
 private:
-    ActionState(Device* device) 
-        : IDeviceState(device, StateIdentifier::ACTION_STATE)
-        , log(LogManager::getInstance())
-        , configManager(ConfigManager::getInstance()) {};
-    
-    LogManager& log;
-    ConfigManager& configManager;
+    ActionState(Device *device)
+        : IDeviceState(device, StateIdentifier::ACTION_STATE), log(LogManager::getInstance()), configManager(ConfigManager::getInstance()) {};
+
+    LogManager &log;
+    ConfigManager &configManager;
 
 public:
-    ActionState(const ActionState&) = delete;
-    void operator=(const ActionState&) = delete;
+    ActionState(const ActionState &) = delete;
+    void operator=(const ActionState &) = delete;
 
-    static ActionState& getInstance(Device* device) {
+    static ActionState &getInstance(Device *device)
+    {
         static ActionState instance(device);
         return instance;
     }
@@ -25,7 +25,6 @@ public:
     void enter() override;
     void update() override;
     void exit() override;
-
 };
 
 #endif

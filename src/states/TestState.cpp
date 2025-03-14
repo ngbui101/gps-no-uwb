@@ -1,12 +1,15 @@
 #include "states/TestState.h"
 
-void TestState::enter(){
+void TestState::enter()
+{
     log.debug("TestState", "Entering TestState");
 }
 
-void TestState::update(){
+void TestState::update()
+{
 }
 
-void TestState::exit(){
+void TestState::exit()
+{
     log.debug("TestState", "Exiting TestState");
 }

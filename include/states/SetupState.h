@@ -12,7 +12,8 @@
 #include "states/UpdateState.h"
 #include "ErrorCodes.h"
 
-enum class SetupPhase {
+enum class SetupPhase
+{
     INIT,
     WIFI_CONNECTING,
     MQTT_CONNECTING,
@@ -22,21 +23,17 @@ enum class SetupPhase {
     __DELIMITER__
 };
 
-class SetupState : public IDeviceState {
+class SetupState : public IDeviceState
+{
 private:
-    SetupState(Device* device) 
-        : IDeviceState(device, StateIdentifier::SETUP_STATE)
-        , log(LogManager::getInstance())
-        , configManager(ConfigManager::getInstance())
-        , wifiManager(WifiManager::getInstance())
-        , mqttManager(MQTTManager::getInstance())
-        , bluetoothManager(BluetoothManager::getInstance()) {};
+    SetupState(Device *device)
+        : IDeviceState(device, StateIdentifier::SETUP_STATE), log(LogManager::getInstance()), configManager(ConfigManager::getInstance()), wifiManager(WifiManager::getInstance()), mqttManager(MQTTManager::getInstance()), bluetoothManager(BluetoothManager::getInstance()) {};
 
-    LogManager& log;
-    ConfigManager& configManager;
-    WifiManager& wifiManager;
-    MQTTManager& mqttManager;
-    BluetoothManager& bluetoothManager;
+    LogManager &log;
+    ConfigManager &configManager;
+    WifiManager &wifiManager;
+    MQTTManager &mqttManager;
+    BluetoothManager &bluetoothManager;
 
     static const uint32_t SETUP_TIMEOUT = 60000;
     SetupPhase currentPhase;
@@ -47,20 +44,21 @@ private:
     bool initializeManagers();
     void handleWifiConnection();
     void handleMqttConnection();
-    void handleConnectionError(const char* message, ErrorCode errorCode);
+    void handleConnectionError(const char *message, ErrorCode errorCode);
     void handleSetupFailure();
     void subscribeDefaultTopics();
-    void handleDeviceMessage(const char* topic, const uint8_t* payload, unsigned int length);
-    void handleConfigMessage(const char* topic, const uint8_t* payload, unsigned int length);
+    void handleDeviceMessage(const char *topic, const uint8_t *payload, unsigned int length);
+    void handleConfigMessage(const char *topic, const uint8_t *payload, unsigned int length);
 
-    const char* getSetupPhaseString(SetupPhase phase);
-    constexpr size_t getSetupPhaseCount() {return static_cast<size_t>(SetupPhase::__DELIMITER__);};
+    const char *getSetupPhaseString(SetupPhase phase);
+    constexpr size_t getSetupPhaseCount() { return static_cast<size_t>(SetupPhase::__DELIMITER__); };
 
 public:
-    SetupState(const SetupState&) = delete;
-    void operator=(const SetupState&) = delete;
+    SetupState(const SetupState &) = delete;
+    void operator=(const SetupState &) = delete;
 
-    static SetupState& getInstance(Device* device) {
+    static SetupState &getInstance(Device *device)
+    {
         static SetupState instance(device);
         return instance;
     }
