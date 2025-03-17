@@ -23,8 +23,6 @@ const char *WifiManager::getWifiStatusString(WiFiStatus status)
 
 bool WifiManager::begin()
 {
-    log.debug("WifiManager", "Initializing WifiManager...");
-
     RuntimeConfig &config = configManager.getRuntimeConfig();
 
     if (strlen(config.wifi.ssid) == 0)
@@ -91,9 +89,9 @@ void WifiManager::update()
             status = WiFiStatus::CONNECTED;
             connectionAttempts = 0;
 
-            char msgBuffer[64];
-            snprintf(msgBuffer, sizeof(msgBuffer), "Connected to Wifi-AP with IP: %s", WiFi.localIP().toString().c_str());
-            log.debug("WifiManager", msgBuffer);
+            char buffer[64];
+            snprintf(buffer, sizeof(buffer), "Connected to Wifi-AP with IP: %s", WiFi.localIP().toString().c_str());
+            log.info("WifiManager", buffer);
 
             return;
         }
@@ -103,7 +101,10 @@ void WifiManager::update()
             lastAttempt = millis();
             connectionAttempts++;
 
-            Serial.printf("Connection Attempts: %d (%d)\n", connectionAttempts, config.wifi.maxConnectionAttempts);
+            char buffer[64];
+            snprintf(buffer, sizeof(buffer), "Connection attempt %d/%d", connectionAttempts, config.wifi.maxConnectionAttempts);
+            log.debug("WifiManager", buffer);
+
             if (connectionAttempts >= config.wifi.maxConnectionAttempts)
             {
                 status = WiFiStatus::CONNECTION_FAILED;

@@ -8,6 +8,10 @@ bool CommandManager::begin()
     registerCommand(std::make_shared<HelpCommand>());
     registerCommand(std::make_shared<PingCommand>());
     registerCommand(std::make_shared<WifiCommand>());
+    registerCommand(std::make_shared<BluetoothCommand>());
+    registerCommand(std::make_shared<HistoryCommand>());
+
+    showPrompt();
 
     mqttContext = std::unique_ptr<MQTTCommandContext>(new MQTTCommandContext());
 
@@ -117,6 +121,133 @@ bool CommandManager::executeCommand(const String &commandStr, ICommandContext &c
     }
 
     return commandIterator->second->execute(commandArgs, context);
+}
+
+void CommandManager::showPrompt()
+{
+    Serial.print("\n\r#> ");
+    isPromptDisplayed = true;
+}
+
+void CommandManager::update()
+{
+    if (Serial.available())
+    {
+        char c = (char)Serial.read();
+        processInput(c);
+    }
+}
+
+void CommandManager::processInput(char c)
+{
+    if (ignoreNextInputCycle)
+    {
+        ignoreNextInputCycle = false;
+        return;
+    }
+
+    if (c == '\n' || c == '\r')
+    {
+        handleEnter();
+    }
+    else if (c == 127 || c == 8)
+    {
+        handleBackspace();
+    }
+    else
+    {
+        inputBuffer += c;
+        Serial.print(c);
+    }
+}
+
+void CommandManager::handleEnter()
+{
+    ignoreNextInputCycle = true;
+
+    if (inputBuffer.length() > 0)
+    {
+        Serial.println();
+        addCommandToHistory(inputBuffer.c_str());
+        executeCommand(inputBuffer, context);
+        inputBuffer = "";
+    }
+
+    showPrompt();
+}
+
+void CommandManager::handleBackspace()
+{
+    if (inputBuffer.length() > 0)
+    {
+        inputBuffer.remove(inputBuffer.length() - 1);
+        Serial.print("\b \b");
+    }
+}
+
+void CommandManager::addCommandToHistory(const char *command)
+{
+    Serial.println(strlen(command));
+
+    if (strlen(command) > COMMAND_LINE_LENGTH - 1)
+    {
+        char truncatedCommand[COMMAND_LINE_LENGTH];
+        strncpy(truncatedCommand, command, COMMAND_LINE_LENGTH - 4);
+        truncatedCommand[COMMAND_LINE_LENGTH - 4] = '.';
+        truncatedCommand[COMMAND_LINE_LENGTH - 3] = '.';
+        truncatedCommand[COMMAND_LINE_LENGTH - 2] = '.';
+        truncatedCommand[COMMAND_LINE_LENGTH - 1] = '\0';
+        strcpy(commandHistory[commandHistoryIndex], truncatedCommand);
+    }
+    else
+    {
+        strcpy(commandHistory[commandHistoryIndex], command);
+    }
+
+    if (strlen(command) >= COMMAND_HISTORY_SIZE)
+    {
+        for (size_t i = 1; i < COMMAND_HISTORY_SIZE; i++)
+        {
+            strcpy(commandHistory[i - 1], commandHistory[i]);
+        }
+
+        strcpy(commandHistory[COMMAND_HISTORY_SIZE - 1], command);
+    }
+    else
+    {
+
+        if (strlen(command) > COMMAND_LINE_LENGTH - 1)
+        {
+            char truncatedCommand[COMMAND_LINE_LENGTH];
+            strncpy(truncatedCommand, command, COMMAND_LINE_LENGTH - 4);
+            truncatedCommand[COMMAND_LINE_LENGTH - 4] = '.';
+            truncatedCommand[COMMAND_LINE_LENGTH - 3] = '.';
+            truncatedCommand[COMMAND_LINE_LENGTH - 2] = '.';
+            truncatedCommand[COMMAND_LINE_LENGTH - 1] = '\0';
+            strcpy(commandHistory[commandHistoryIndex], truncatedCommand);
+        }
+        else
+        {
+            strcpy(commandHistory[commandHistoryIndex], command);
+        }
+    }
+
+    commandHistoryIndex++;
+}
+
+void CommandManager::showCommandHistory()
+{
+    for (size_t i = 0; i < COMMAND_HISTORY_SIZE; i++)
+    {
+        Serial.println(commandHistory[i]);
+    }
+}
+
+void CommandManager::clearCommandHistory()
+{
+
+    commandHistoryIndex = 0;
+    memset(commandHistory, 0, sizeof(commandHistory));
 }
 
 const std::map<String, std::shared_ptr<ICommand>> &CommandManager::getCommands() const
