@@ -16,6 +16,7 @@ HistoryCommand::HistoryCommand() : commandManager(CommandManager::getInstance())
         context.sendResponse("Command history cleared");
         return true;
     };
+    subCommandDescriptions["clear"] = "Clears the command history";
 }
 
 bool HistoryCommand::showCommandHistoryCmd(const std::vector<String> &args, ICommandContext &context)
@@ -23,36 +24,19 @@ bool HistoryCommand::showCommandHistoryCmd(const std::vector<String> &args, ICom
     auto commandHistory = commandManager.getCommandHistory();
     size_t commandHistoryIndex = commandManager.getCommandHistoryIndex();
 
-    char buffer[COMMAND_LINE_LENGTH * COMMAND_HISTORY_SIZE + COMMAND_HISTORY_SIZE];
-
-    char tempLine[COMMAND_LINE_LENGTH + 8]; // Temporärer Puffer für jede Zeile
-    size_t bufferPos = 0;                   // Position im Puffer
-
-    // Kopfzeile hinzufügen
-    bufferPos += snprintf(buffer + bufferPos, sizeof(buffer) - bufferPos, "Command History:\n");
+    char buffer[COMMAND_LINE_LENGTH * COMMAND_HISTORY_SIZE + 16];
+    size_t bufferPos = 0;
 
     for (int i = 0; i < COMMAND_HISTORY_SIZE; i++)
     {
         if (commandHistory[i][0] != '\0')
         {
-            // Formatiere die Zeile mit Nummer und Befehl
-            int lineLength = snprintf(tempLine, sizeof(tempLine),
+            int lineLength = snprintf(buffer + bufferPos, sizeof(buffer) - bufferPos,
                                       "%2d: %s\n",
                                       commandHistoryIndex - (COMMAND_HISTORY_SIZE - i), commandHistory[i]);
 
-            // Zur Hauptausgabe hinzufügen, wenn genug Platz ist
-            if (bufferPos + lineLength < sizeof(buffer))
-            {
-                strcpy(buffer + bufferPos, tempLine);
-                bufferPos += lineLength;
-            }
-            else
-            {
-                // Puffer würde überlaufen, abbrechen
-                bufferPos += snprintf(buffer + bufferPos, sizeof(buffer) - bufferPos,
-                                      "... (output truncated)\n");
-                break;
-            }
+            strcpy(buffer + bufferPos, commandHistory[i]);
+            bufferPos += lineLength;
         }
     }
 
