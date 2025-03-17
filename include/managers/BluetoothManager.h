@@ -13,57 +13,38 @@
 #include "ConfigManager.h"
 #include "LogManager.h"
 
-enum class BluetoothMode
-{
-    NONE,
-    SERVER,
-    CLIENT,
-    __DELIMITER__
-};
-
 enum class BluetoothStatus
 {
-    UNINITIALIZED,
-    INITIALIZED,
+    INACTIVE,
+    ACTIVE,
     ADVERTISING,
-    SCANNING,
-    CONNECTED,
-    DISCONNECTED,
-    CONNECTION_FAILED,
-    __DELIMITER__
+    ERROR
 };
 
 class BluetoothManager
 {
 private:
     BluetoothManager()
-        : status(BluetoothStatus::UNINITIALIZED), mode(BluetoothMode::NONE), pServer(nullptr), pClient(nullptr), pCharacteristic(nullptr), configManager(ConfigManager::getInstance()), log(LogManager::getInstance()) {}
+        : status(BluetoothStatus::INACTIVE), pServer(nullptr), pDeviceInfoChar(nullptr), configManager(ConfigManager::getInstance()), log(LogManager::getInstance()) {}
 
     ConfigManager &configManager;
     LogManager &log;
 
     BluetoothStatus status;
-    BluetoothMode mode;
+
     BLEServer *pServer;
-    BLEClient *pClient;
-    BLECharacteristic *pCharacteristic;
-
-    bool initServer();
-    bool initClient();
-    void updatePayload();
-    void cleanup();
-
-    const char *getBluetoothStatusString(BluetoothStatus status);
-    constexpr size_t getBluetoothStatusCount() { return static_cast<size_t>(BluetoothStatus::__DELIMITER__); };
+    BLEService *pDeviceInfoService;
+    BLEService *pCustomService;
+    BLECharacteristic *pDeviceInfoChar;
 
     class ServerCallbacks : public BLEServerCallbacks
     {
     private:
         BluetoothManager &manager;
+        LogManager &log;
 
     public:
-        ServerCallbacks(BluetoothManager &manager)
-            : manager(manager) {}
+        ServerCallbacks(BluetoothManager &manager, LogManager &log) : manager(manager), log(log) {}
 
         void onConnect(BLEServer *pServer) override;
         void onDisconnect(BLEServer *pServer) override;
@@ -73,12 +54,17 @@ private:
     {
     private:
         BluetoothManager &manager;
+        LogManager &log;
 
     public:
-        ClientCallbacks(BluetoothManager &manager) : manager(manager) {}
+        ClientCallbacks(BluetoothManager &manager) : manager(manager), log(log) {}
+
         void onConnect(BLEClient *pClient) override;
         void onDisconnect(BLEClient *pClient) override;
     };
+
+    void setupServices();
+    void updateDeviceInfo();
 
 public:
     BluetoothManager(const BluetoothManager &) = delete;
@@ -91,14 +77,13 @@ public:
     }
 
     bool begin();
+    bool startAdvertising();
+    void stopAdvertising();
+    void shutdown();
     void update();
-    bool connect(const char *target);
-    void disconnect();
 
-    bool setMode(BluetoothMode mode);
-
-    const char *getStatusString();
-    const char *getModeString();
+    BluetoothStatus getStatus() const { return status; }
+    const char *getStatusString() const;
 };
 
 #endif
