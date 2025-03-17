@@ -36,12 +36,6 @@ void SetupState::update()
             return;
         }
 
-        if (!bluetoothManager.setMode(BluetoothMode::SERVER))
-        {
-            log.error("ActionState", "Failed to start BLE server");
-            return;
-        }
-
         log.info("SetupState", "BLE server started successfully");
         currentPhase = SetupPhase::COMPLETED;
         break;
@@ -73,6 +67,11 @@ void SetupState::exit()
 
 bool SetupState::initializeManagers()
 {
+    if (!commandManager.begin())
+    {
+        log.error("IdleState", "Failed to initialize CommandManager");
+    }
+
     if (!wifiManager.begin())
     {
         log.error("SetupState", "Failed to initialize WifiManager");

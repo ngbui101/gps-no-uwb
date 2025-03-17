@@ -17,7 +17,6 @@
 #include "managers/MQTTManager.h"
 #include "managers/LogManager.h"
 #include "managers/CommandManager.h"
-#include "managers/SerialManager.h"
 #include "interfaces/IDeviceState.h"
 #include "contexts/SerialCommandContext.h"
 #include "contexts/MQTTCommandContext.h"
@@ -39,13 +38,12 @@ class Device
 {
 private:
     Device()
-        : currentState(nullptr), lastStatusUpdate(0), mqttManager(MQTTManager::getInstance()), configManager(ConfigManager::getInstance()), log(LogManager::getInstance()), commandManager(CommandManager::getInstance()), serialManager(SerialManager::getInstance()) {}
+        : currentState(nullptr), lastStatusUpdate(0), mqttManager(MQTTManager::getInstance()), configManager(ConfigManager::getInstance()), log(LogManager::getInstance()), commandManager(CommandManager::getInstance()) {}
 
     MQTTManager &mqttManager;
     ConfigManager &configManager;
     CommandManager &commandManager;
     LogManager &log;
-    SerialManager &serialManager;
 
     IDeviceState *currentState;
     uint32_t lastStatusUpdate;

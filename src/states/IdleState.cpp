@@ -2,7 +2,7 @@
 
 void IdleState::enter()
 {
-    log.debug("IdleState", "Entering IdleState");
+    log.info("IdleState", "Entering IdleState");
 }
 
 void IdleState::update()
@@ -12,5 +12,5 @@ void IdleState::update()
 
 void IdleState::exit()
 {
-    log.debug("IdleState", "Exiting IdleState");
+    log.info("IdleState", "Exiting IdleState");
 }

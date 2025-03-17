@@ -2,7 +2,7 @@
 
 void UpdateState::enter()
 {
-    log.debug("UpdateState", "Entering Update State");
+    log.info("UpdateState", "Entering Update State");
     currentPhase = UpdatePhase::CHECK_VERSION;
 }
 
@@ -58,7 +58,7 @@ void UpdateState::update()
 
 void UpdateState::exit()
 {
-    log.debug("UpdateState", "Exiting UpdateState");
+    log.info("UpdateState", "Exiting UpdateState");
 }
 
 bool UpdateState::checkUpdateConditions()

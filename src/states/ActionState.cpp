@@ -2,7 +2,7 @@
 
 void ActionState::enter()
 {
-    log.debug("ActionState", "Entering ActionState");
+    log.info("ActionState", "Entering ActionState");
 }
 
 void ActionState::update()
@@ -12,5 +12,5 @@ void ActionState::update()
 
 void ActionState::exit()
 {
-    log.debug("ActionState", "Exiting ActionState");
+    log.info("ActionState", "Exiting ActionState");
 }

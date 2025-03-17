@@ -232,7 +232,6 @@ bool ConfigManager::hasConfigDefinesChanged()
     char hashBuffer[ConfigLimits::CONFIG_HASH_MAX_LENGTH];
     calculateHash(&defaultConfig, hashBuffer, sizeof(hashBuffer));
 
-    Serial.printf("File Config Hash: %s - Stored Config Hash: %s\n", hashBuffer, config.hash);
     return strcmp(hashBuffer, config.hash) != 0;
 }
 

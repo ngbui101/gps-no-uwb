@@ -6,6 +6,8 @@
 class PingCommand : public ICommand
 {
 public:
+    PingCommand() {}
+
     const char *getName() const override
     {
         return "ping";

@@ -20,7 +20,6 @@ public:
     WifiCommand()
         : wifiManager(WifiManager::getInstance()), log(LogManager::getInstance()), configManager(ConfigManager::getInstance())
     {
-
         subCommands["start"] = [this](const std::vector<String> &args, ICommandContext &context)
         {
             return startAccessPointCmd(args, context);

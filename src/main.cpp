@@ -32,8 +32,6 @@ void setup()
       ;
   }
 
-  Serial.println("FINISHED DEVICE INIT");
-
   device.changeState(IdleState::getInstance(&device));
 }
 

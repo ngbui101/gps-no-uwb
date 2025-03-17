@@ -2,7 +2,7 @@
 
 void TestState::enter()
 {
-    log.debug("TestState", "Entering TestState");
+    log.info("TestState", "Entering TestState");
 }
 
 void TestState::update()
@@ -11,5 +11,5 @@ void TestState::update()
 
 void TestState::exit()
 {
-    log.debug("TestState", "Exiting TestState");
+    log.info("TestState", "Exiting TestState");
 }

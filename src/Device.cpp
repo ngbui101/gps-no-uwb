@@ -2,7 +2,7 @@
 
 bool Device::begin()
 {
-    log.debug("Device", "Initializing Device...");
+    log.info("Device", "Initializing Device...");
 
     if (!configManager.begin())
     {
@@ -16,18 +16,6 @@ bool Device::begin()
     {
         log.info("Device", "ConfigDefines has changed, updating device config");
         configManager.updateDeviceConfig();
-    }
-
-    if (!serialManager.begin())
-    {
-        log.error("Device", "Failed to initialize SerialManager");
-        return false;
-    }
-
-    if (!commandManager.begin())
-    {
-        log.error("Device", "Failed to initialize CommandManager");
-        return false;
     }
 
     return true;
@@ -50,7 +38,7 @@ void Device::changeState(IDeviceState &newState)
 
 void Device::update()
 {
-    serialManager.update();
+    commandManager.update();
 
     if (!currentState)
     {

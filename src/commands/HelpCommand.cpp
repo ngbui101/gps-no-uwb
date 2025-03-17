@@ -56,6 +56,7 @@ bool HelpCommand::execute(const std::vector<String> &args, ICommandContext &cont
 
     String response = "Available commands:\n";
     const auto &commands = commandManager.getCommands();
+
     for (const auto &cmd : commands)
     {
         response += "  " + cmd.first + " - " + cmd.second->getDescription() + "\n";

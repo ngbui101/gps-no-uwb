@@ -2,7 +2,7 @@
 
 void ErrorState::enter()
 {
-    log.debug("ErrorState", "Entering ErrorState");
+    log.info("ErrorState", "Entering ErrorState");
     reportError();
     startRecoveryTimer();
 }
@@ -13,7 +13,7 @@ void ErrorState::update()
 
 void ErrorState::exit()
 {
-    log.debug("ErrorState", "Exiting ErrorState");
+    log.info("ErrorState", "Exiting ErrorState");
 }
 
 void ErrorState::setError(ErrorCode errorCode, IDeviceState *sourceState, const char *message)
