@@ -17,18 +17,51 @@ bool HelpCommand::execute(const std::vector<String> &args, ICommandContext &cont
             {
                 response += "\nSubcommands:\n";
                 std::vector<String> subCommands = cmd->getSubCommands();
+
+                size_t maxSubCmdLength = 0;
                 for (const auto &subCmd : subCommands)
                 {
-                    response += "  " + subCmd + " - " + String(cmd->getSubCommandDescription(subCmd)) + "\n";
+                    if (subCmd.length() > maxSubCmdLength)
+                    {
+                        maxSubCmdLength = subCmd.length();
+                    }
+                }
+                maxSubCmdLength += 4;
 
-                    // Parameter anzeigen
+                for (const auto &subCmd : subCommands)
+                {
+                    String paddedSubCmd = subCmd;
+                    while (paddedSubCmd.length() < maxSubCmdLength)
+                    {
+                        paddedSubCmd += " ";
+                    }
+
+                    response += "  " + paddedSubCmd + "- " + String(cmd->getSubCommandDescription(subCmd)) + "\n";
+
                     std::vector<CommandParameter> params = cmd->getSubCommandParameters(subCmd);
                     if (!params.empty())
                     {
                         response += "    Parameters:\n";
+
+                        size_t maxParamLength = 0;
                         for (const auto &param : params)
                         {
-                            response += "      " + param.name + ": " + param.description;
+                            if (param.name.length() > maxParamLength)
+                            {
+                                maxParamLength = param.name.length();
+                            }
+                        }
+                        maxParamLength += 4;
+
+                        for (const auto &param : params)
+                        {
+                            String paddedParam = param.name;
+                            while (paddedParam.length() < maxParamLength)
+                            {
+                                paddedParam += " ";
+                            }
+
+                            response += "      " + paddedParam + "- " + param.description;
                             if (param.required)
                             {
                                 response += " (required)";
@@ -57,10 +90,29 @@ bool HelpCommand::execute(const std::vector<String> &args, ICommandContext &cont
     String response = "Available commands:\n";
     const auto &commands = commandManager.getCommands();
 
+    size_t maxLength = 0;
     for (const auto &cmd : commands)
     {
-        response += "  " + cmd.first + " - " + cmd.second->getDescription() + "\n";
+        if (cmd.first.length() > maxLength)
+        {
+            maxLength = cmd.first.length();
+        }
     }
+
+    maxLength += 4;
+
+    for (const auto &cmd : commands)
+    {
+        String paddedCommand = cmd.first;
+
+        while (paddedCommand.length() < maxLength)
+        {
+            paddedCommand += " ";
+        }
+
+        response += "  " + paddedCommand + "- " + cmd.second->getDescription() + "\n";
+    }
+
     response += "\nType 'help <command>' for detailed information about a specific command.";
 
     context.sendResponse(response.c_str());

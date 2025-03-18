@@ -18,7 +18,7 @@ public:
 
     const char *getDescription() const override
     {
-        return "Lists all available commands. Usage: help [command]";
+        return "Lists all available commands";
     }
 
     bool execute(const std::vector<String> &args, ICommandContext &context) override;

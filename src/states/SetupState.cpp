@@ -42,6 +42,13 @@ void SetupState::update()
     case SetupPhase::COMPLETED:
         mqttManager.update();
 
+        if (!commandManager.begin())
+        {
+            log.error("IdleState", "Failed to initialize CommandManager");
+        }
+        // TODO: After initialising the command manager, change the output behaviour of the log manager so that non-essential logs are not printed to the serial monitor, but sent to the buffer instead.
+
+        device->changeState(TestState::getInstance(device));
         // device->changeState(UpdateState::getInstance(device));
         // evice->changeState(ActionState::getInstance(device));
         break;
@@ -67,10 +74,6 @@ void SetupState::exit()
 
 bool SetupState::initializeManagers()
 {
-    if (!commandManager.begin())
-    {
-        log.error("IdleState", "Failed to initialize CommandManager");
-    }
 
     if (!wifiManager.begin())
     {
