@@ -27,7 +27,13 @@ class CommandManager
 {
 private:
     CommandManager()
-        : log(LogManager::getInstance()), mqttManager(MQTTManager::getInstance()), isLocked(true), commandHistoryIndex(0) {}
+        : log(LogManager::getInstance()), mqttManager(MQTTManager::getInstance()), isLocked(true), commandHistoryIndex(0)
+    {
+        for (int i = 0; i < COMMAND_HISTORY_SIZE; i++)
+        {
+            commandHistory[i][0] = '\0';
+        }
+    }
 
     LogManager &log;
     MQTTManager &mqttManager;
@@ -36,8 +42,7 @@ private:
     char commandHistory[COMMAND_HISTORY_SIZE][COMMAND_LINE_LENGTH];
     size_t commandHistoryIndex;
 
-    std::map<String, std::shared_ptr<ICommand>>
-        commands;
+    std::map<String, std::shared_ptr<ICommand>> commands;
     std::unique_ptr<MQTTCommandContext> mqttContext;
 
     SerialCommandContext context;

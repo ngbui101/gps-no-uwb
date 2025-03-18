@@ -24,24 +24,44 @@ bool HistoryCommand::showCommandHistoryCmd(const std::vector<String> &args, ICom
     auto commandHistory = commandManager.getCommandHistory();
     size_t commandHistoryIndex = commandManager.getCommandHistoryIndex();
 
-    char buffer[COMMAND_LINE_LENGTH * COMMAND_HISTORY_SIZE + 16];
-    size_t bufferPos = 0;
+    char buffer[COMMAND_HISTORY_SIZE * (COMMAND_LINE_LENGTH + 64)];
+    buffer[0] = '\0';
+
+    int validEntries = 0;
 
     for (int i = 0; i < COMMAND_HISTORY_SIZE; i++)
     {
         if (commandHistory[i][0] != '\0')
         {
-            int lineLength = snprintf(buffer + bufferPos, sizeof(buffer) - bufferPos,
-                                      "%2d: %s\n",
-                                      commandHistoryIndex - (COMMAND_HISTORY_SIZE - i), commandHistory[i]);
+            validEntries++;
+        }
+    }
 
-            strcpy(buffer + bufferPos, commandHistory[i]);
-            bufferPos += lineLength;
+    if (validEntries == 0)
+    {
+        strcat(buffer, "No commands in history.\n");
+    }
+    else
+    {
+        for (int i = 0; i < COMMAND_HISTORY_SIZE; i++)
+        {
+            if (commandHistory[i][0] != '\0')
+            {
+                char entryBuffer[COMMAND_LINE_LENGTH + 16];
+                size_t commandIndex = i;
+
+                if (commandHistoryIndex >= COMMAND_HISTORY_SIZE)
+                {
+                    commandIndex = commandHistoryIndex - COMMAND_HISTORY_SIZE + i;
+                }
+
+                snprintf(entryBuffer, sizeof(entryBuffer), "%2d: %s\n", commandIndex, commandHistory[i]);
+                strcat(buffer, entryBuffer);
+            }
         }
     }
 
     context.sendResponse(buffer);
-
     return true;
 }
 

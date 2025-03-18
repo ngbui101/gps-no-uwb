@@ -187,49 +187,33 @@ void CommandManager::handleBackspace()
 
 void CommandManager::addCommandToHistory(const char *command)
 {
-    Serial.println(strlen(command));
+    char buffer[COMMAND_LINE_LENGTH];
 
-    if (strlen(command) > COMMAND_LINE_LENGTH - 1)
+    if (strlen(command) >= COMMAND_LINE_LENGTH)
     {
-        char truncatedCommand[COMMAND_LINE_LENGTH];
-        strncpy(truncatedCommand, command, COMMAND_LINE_LENGTH - 4);
-        truncatedCommand[COMMAND_LINE_LENGTH - 4] = '.';
-        truncatedCommand[COMMAND_LINE_LENGTH - 3] = '.';
-        truncatedCommand[COMMAND_LINE_LENGTH - 2] = '.';
-        truncatedCommand[COMMAND_LINE_LENGTH - 1] = '\0';
-        strcpy(commandHistory[commandHistoryIndex], truncatedCommand);
+        strncpy(buffer, command, COMMAND_LINE_LENGTH - 4);
+        buffer[COMMAND_LINE_LENGTH - 4] = '.';
+        buffer[COMMAND_LINE_LENGTH - 3] = '.';
+        buffer[COMMAND_LINE_LENGTH - 2] = '.';
+        buffer[COMMAND_LINE_LENGTH - 1] = '\0';
     }
     else
     {
-        strcpy(commandHistory[commandHistoryIndex], command);
+        strcpy(buffer, command);
     }
 
-    if (strlen(command) >= COMMAND_HISTORY_SIZE)
+    if (commandHistoryIndex >= COMMAND_HISTORY_SIZE)
     {
-        for (size_t i = 1; i < COMMAND_HISTORY_SIZE; i++)
+        for (size_t i = 0; i < COMMAND_HISTORY_SIZE - 1; i++)
         {
-            strcpy(commandHistory[i - 1], commandHistory[i]);
+            strcpy(commandHistory[i], commandHistory[i + 1]);
         }
 
-        strcpy(commandHistory[COMMAND_HISTORY_SIZE - 1], command);
+        strcpy(commandHistory[COMMAND_HISTORY_SIZE - 1], buffer);
     }
     else
     {
-
-        if (strlen(command) > COMMAND_LINE_LENGTH - 1)
-        {
-            char truncatedCommand[COMMAND_LINE_LENGTH];
-            strncpy(truncatedCommand, command, COMMAND_LINE_LENGTH - 4);
-            truncatedCommand[COMMAND_LINE_LENGTH - 4] = '.';
-            truncatedCommand[COMMAND_LINE_LENGTH - 3] = '.';
-            truncatedCommand[COMMAND_LINE_LENGTH - 2] = '.';
-            truncatedCommand[COMMAND_LINE_LENGTH - 1] = '\0';
-            strcpy(commandHistory[commandHistoryIndex], truncatedCommand);
-        }
-        else
-        {
-            strcpy(commandHistory[commandHistoryIndex], command);
-        }
+        strcpy(commandHistory[commandHistoryIndex], buffer);
     }
 
     commandHistoryIndex++;
