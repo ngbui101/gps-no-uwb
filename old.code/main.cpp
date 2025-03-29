@@ -14,7 +14,7 @@ void setup()
   esp_log_level_set("*", ESP_LOG_VERBOSE);
   esp_core_dump_init();
 
-  Serial.begin(MONITOR_SPEED);
+  Serial.begin(115200);
   Serial.println(F("###################################################"));
   Serial.println(F("(c) 2023-2024 Hochschule Bochum GPS:NO - Martin Peth, Niklas Schütrumpf, Felix Schwarz"));
   Serial.printf("Compiled with c++ version %s", __VERSION__);

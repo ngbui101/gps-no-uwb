@@ -178,10 +178,10 @@ void ConfigManager::setConfigFromDefines(RuntimeConfig *config)
     config->bluetooth.maxConnections = BLUETOOTH_MAX_CONNECTIONS;
 
     /* #### UPDATE #### */
-    SAFE_STRLCPY(config->update.apiUrl, UPDATE_GITHUB_API_URL);
-    SAFE_STRLCPY(config->update.apiToken, UPDATE_GITHUB_API_TOKEN);
-    config->update.interval = UPDATE_INTERVAL;
-    config->update.initialCheck = UPDATE_INITIAL_CHECK;
+    // SAFE_STRLCPY(config->update.apiUrl, UPDATE_GITHUB_API_URL);
+    // SAFE_STRLCPY(config->update.apiToken, UPDATE_GITHUB_API_TOKEN);
+    // config->update.interval = UPDATE_INTERVAL;
+    // config->update.initialCheck = UPDATE_INITIAL_CHECK;
 
 #undef SAFE_STRLCPY
 }

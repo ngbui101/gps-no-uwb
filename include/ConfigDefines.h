@@ -1,7 +1,15 @@
 #ifndef CONFIG_DEFINES_H
 #define CONFIG_DEFINES_H
+#ifdef TAG
+    #define DEVICE_NAME "UWB_TAG"
+#elif defined(ANCHOR_1)
+    #define DEVICE_NAME "ANCHOR_1"
+#elif defined(ANCHOR_2)
+    #define DEVICE_NAME "ANCHOR_2"
+#elif defined(ANCHOR_3)
+    #define DEVICE_NAME "ANCHOR_3"
+#endif
 
-#define DEVICE_NAME ""
 #define DEVICE_HEARTBEAT_INTERVAL 60000
 
 #define WIFI_SSID ""
@@ -31,10 +39,10 @@
 #define LOGGING_ALLOW_MQTT_LOG true
 #define LOGGING_MQTT_TOPIC ""
 
-#define UPDATE_GITHUB_API_URL "https://api.github.com/repos/Legincy/gps-no-fw/releases/latest"
-#define UPDATE_GITHUB_API_TOKEN ""
-#define UPDATE_INTERVAL 10000
-#define UPDATE_INITIAL_CHECK true
+// #define UPDATE_GITHUB_API_URL "https://api.github.com/repos/Legincy/gps-no-fw/releases/latest"
+// #define UPDATE_GITHUB_API_TOKEN ""
+// #define UPDATE_INTERVAL 10000
+// #define UPDATE_INITIAL_CHECK true
 
 #define DEBUG_FORCE_CONFIG true
 #endif

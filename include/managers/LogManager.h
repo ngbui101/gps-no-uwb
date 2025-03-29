@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 #include <PubSubClient.h>
-#include "ConfigManager.h"
 
 enum class LogLevel
 {
@@ -18,13 +17,11 @@ class LogManager
 {
 private:
     LogManager()
-        : configManager(ConfigManager::getInstance()), deviceId(configManager.getRuntimeConfig().device.name), logLevel(static_cast<LogLevel>(configManager.getRuntimeConfig().logging.logLevel))
     {
     }
 
     PubSubClient *mqttClient;
     static const char *LOG_TOPIC_PREFIX;
-    ConfigManager &configManager;
     const char *deviceId;
     LogLevel logLevel;
 
