@@ -73,20 +73,7 @@ bool MQTTManager::begin()
         return true;
     }
 
-    RuntimeConfig &config = configManager.getRuntimeConfig();
-
-    if (strlen(config.mqtt.broker) == 0)
-    {
-        log.warning("MQTTManager", "No MQTT broker available, skipping MQTTManager initialization");
-        return false;
-    }
-    else if (config.mqtt.port == 0)
-    {
-        log.warning("MQTTManager", "No MQTT port available, skipping MQTTManager initialization");
-        return false;
-    }
-
-    client.setServer(config.mqtt.broker, config.mqtt.port);
+    // client.setServer(config.mqtt.broker, config.mqtt.port);
     client.setBufferSize(2048);
     client.setCallback([this](char *topic, byte *payload, unsigned int length)
                        { handleCallback(topic, payload, length); });
@@ -107,16 +94,15 @@ bool MQTTManager::connect()
     if (client.connected())
         return true;
 
-    RuntimeConfig &config = configManager.getRuntimeConfig();
     bool connectionResult;
 
     char msgBuffer[256];
-    snprintf(msgBuffer, sizeof(msgBuffer), "Attempting to connect to MQTT-Broker '%s' (['%s', %d], ['%s', %d])", config.mqtt.broker, config.mqtt.user, strlen(config.mqtt.user), config.mqtt.password, strlen(config.mqtt.password));
+    snprintf(msgBuffer, sizeof(msgBuffer), "Attempting to connect to MQTT-Broker '%s' (['%s', %d], ['%s', %d])", MQTT_BROKER, MQTT_USER, strlen(MQTT_USER), MQTT_PASSWORD, strlen(MQTT_PASSWORD));
     log.debug("MQTTManager", msgBuffer);
 
-    if (strlen(config.mqtt.user) > 0)
+    if (strlen(MQTT_USER) > 0)
     {
-        connectionResult = client.connect(clientId, config.mqtt.user, config.mqtt.password);
+        connectionResult = client.connect(clientId, MQTT_USER, MQTT_PASSWORD);
     }
     else
     {
@@ -250,10 +236,9 @@ void MQTTManager::update()
 
     if (!client.connected())
     {
-        RuntimeConfig &config = configManager.getRuntimeConfig();
         uint32_t now = millis();
 
-        if (now - lastAttempt >= config.mqtt.retryInterval)
+        if (now - lastAttempt >= MQTT_RETRY_INTERVAL)
         {
             lastAttempt = now;
             if (connect())

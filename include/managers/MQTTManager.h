@@ -5,8 +5,8 @@
 #include <WiFiClient.h>
 #include <map>
 #include <vector>
-#include "ConfigManager.h"
 #include "LogManager.h"
+#include "ConfigDefines.h"
 
 typedef std::function<void(char *, uint8_t *, unsigned int)> MQTTCallback;
 
@@ -24,14 +24,11 @@ private:
     MQTTManager()
         : client(espClient), initialized(false), lastAttempt(0), log(LogManager::getInstance()), configManager(ConfigManager::getInstance())
     {
-        RuntimeConfig &config = configManager.getRuntimeConfig();
-
-        snprintf(deviceTopic, sizeof(deviceTopic), "%s/%u", config.mqtt.baseTopic, static_cast<uint32_t>(config.device.chipID));
-        snprintf(clientId, sizeof(clientId), "%s-%x", config.device.name, static_cast<uint32_t>(config.device.chipID));
+        snprintf(deviceTopic, sizeof(deviceTopic), "%s/%u", MQTT_BASE_TOPIC, 123456);
+        snprintf(clientId, sizeof(clientId), "%s-%x", DEVICE_NAME, 123456);
     }
 
     LogManager &log;
-    ConfigManager &configManager;
 
     WiFiClient espClient;
     PubSubClient client;

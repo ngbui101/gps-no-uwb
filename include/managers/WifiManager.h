@@ -2,8 +2,8 @@
 #define WIFI_MANAGER_H
 
 #include <WiFi.h>
-#include "ConfigManager.h"
 #include "LogManager.h"
+#include "ConfigDefines.h"
 
 enum class WiFiStatus
 {
@@ -21,13 +21,12 @@ class WifiManager
 {
 private:
     WifiManager()
-        : status(WiFiStatus::DISCONNECTED), lastAttempt(0), connectionAttempts(0), configManager(ConfigManager::getInstance()), log(LogManager::getInstance()) {}
+        : status(WiFiStatus::DISCONNECTED), lastAttempt(0), connectionAttempts(0), log(LogManager::getInstance()) {}
 
     WiFiStatus status;
     uint32_t lastAttempt;
     uint8_t connectionAttempts;
 
-    ConfigManager &configManager;
     LogManager &log;
 
     SemaphoreHandle_t ftmSemaphore;
