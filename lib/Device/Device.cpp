@@ -3,23 +3,13 @@
 bool Device::begin()
 {
     // Device
-    dwt_setleds(DWT_LEDS_DISABLE); // disable annoys
+
     // Wifi
-    if (!(wifiManager.begin() || wifiManager.connect()))
+    if (!(wifiManager.begin()))
     {
-        logManager.debug("WifiManager", "failed");
+        logManager.debug("WifiManager", "Failed");
         return false;
     }
-    wifiManager.update();
-    // char ssidMessage[128];
-    // char wifiRSSIMessage[128];
-    // char ipMessage[128];
-    // snprintf(ssidMessage, sizeof(ssidMessage), "Connected to %s", wifiManager.getSSID());
-    // snprintf(wifiRSSIMessage, sizeof(wifiRSSIMessage), "RSSI: %d", wifiManager.getRSSI());
-    // snprintf(wifiRSSIMessage, sizeof(ipMessage), "IP: %s", wifiManager.getIP());
-    // logManager.info("WifiManager", ssidMessage);
-    // logManager.info("WifiManager", wifiRSSIMessage);
-    // logManager.info("WifiManager", ipMessage);
 
     return true;
 }

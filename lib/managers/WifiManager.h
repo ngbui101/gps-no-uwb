@@ -21,55 +21,37 @@ class WifiManager
 {
 private:
     WifiManager()
-        : status(WiFiStatus::DISCONNECTED), lastAttempt(0), connectionAttempts(0), log(LogManager::getInstance()) {}
-
-    WiFiStatus status;
-    uint32_t lastAttempt;
-    uint8_t connectionAttempts;
-
+        : log(LogManager::getInstance()) {}
     LogManager &log;
-
-    SemaphoreHandle_t ftmSemaphore;
-    wifi_ftm_status_t ftmStatus;
-    uint32_t ftmDistance;
-
-    const char *getWifiStatusString(WiFiStatus status);
-    constexpr size_t getWifiStatusCount() { return static_cast<size_t>(WiFiStatus::__DELIMITER__); };
-
-    static void onFtmReport(arduino_event_t *event);
-    const char *ftm_status_str[5] = {"SUCCESS", "UNSUPPORTED", "CONF_REJECTED", "NO_RESPONSE", "FAIL"};
 
 public:
     WifiManager(const WifiManager &) = delete;
-    void operator=(const WifiManager &) = delete;
-
     static WifiManager &getInstance()
     {
         static WifiManager instance;
         return instance;
     }
 
+    /**
+     * @brief Initialisiert das WLAN und stellt eine Verbindung zum konfigurierten Netzwerk her.
+     *
+     * Diese Methode überprüft zunächst, ob sowohl die SSID als auch das Passwort vorhanden sind.
+     * Ist eine der beiden Angaben leer, wird ein Warn-Log ausgegeben und die Initialisierung mit false abgebrochen.
+     *
+     * Anschließend wird der WiFi-Modus auf Station (WIFI_STA) gesetzt und eine bestehende Verbindung getrennt.
+     * Mit WiFi.begin() wird versucht, eine Verbindung zum WLAN herzustellen.
+     * Falls WiFi.begin() fehlschlägt, wird ein Fehler geloggt und die Methode gibt false zurück.
+     *
+     * Danach wird in einer Schleife gewartet, bis der Verbindungsstatus WL_CONNECTED erreicht wird.
+     * Es wird ein Timeout von 20 Sekunden definiert. Überschreitet die Wartezeit diesen Wert,
+     * wird die Verbindung als fehlgeschlagen betrachtet, ein Fehler geloggt und false zurückgegeben.
+     *
+     * Bei erfolgreicher Verbindung werden Debug-Logs ausgegeben, die unter anderem die verbundene SSID,
+     * den RSSI-Wert (Signalstärke) und die erhaltene IP-Adresse (als C-String) enthalten.
+     *
+     * @return true, wenn das WLAN erfolgreich verbunden wurde, sonst false.
+     */
     bool begin();
-    void update();
-    bool connect();
-    void disconnect();
-    void reconnect();
-    void printStatus();
-    bool isConnected();
-    void setAutoReconnect(bool isEnabled);
-
-    String getIP();
-    String getSSID();
-    uint8_t *getBSSID();
-    int32_t getRSSI();
-    uint8_t getConnectionAttempts();
-
-    WiFiStatus getStatus();
-    const char *getStatusString() { return getWifiStatusString(status); };
-
-    bool ftmAP(const char *ssid, const char *password);
-    bool initiateFtm(uint8_t channel, byte mac[]);
-    int scan(bool ftm);
 };
 
 #endif
