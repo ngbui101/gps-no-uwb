@@ -1,4 +1,4 @@
-#include "managers/LogManager.h"
+#include "LogManager.h"
 
 const char *LogManager::LOG_TOPIC_PREFIX = "devices";
 

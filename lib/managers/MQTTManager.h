@@ -22,7 +22,7 @@ class MQTTManager
 {
 private:
     MQTTManager()
-        : client(espClient), initialized(false), lastAttempt(0), log(LogManager::getInstance()), configManager(ConfigManager::getInstance())
+        : client(espClient), initialized(false), lastAttempt(0), log(LogManager::getInstance())
     {
         snprintf(deviceTopic, sizeof(deviceTopic), "%s/%u", MQTT_BASE_TOPIC, 123456);
         snprintf(clientId, sizeof(clientId), "%s-%x", DEVICE_NAME, 123456);

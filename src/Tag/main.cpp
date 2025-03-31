@@ -1,14 +1,16 @@
-#include <Arduino.h>
-#include <Wire.h>
-#include "esp_core_dump.h"
-#include "managers/LogManager.h"
+#include "Device.h"
 
 void setup()
 {
-    esp_log_level_set("*", ESP_LOG_VERBOSE);
-    esp_core_dump_init();
-
     Serial.begin(115200);
+    delay(3000);
+    Serial.println("This is UWB debug serial!!!");
+    delay(1000);
+    if (!Device::getInstance().begin())
+    {
+        while (true)
+            ;
+    }
 }
 
 void loop()

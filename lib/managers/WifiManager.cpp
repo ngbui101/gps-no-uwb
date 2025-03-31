@@ -1,4 +1,4 @@
-#include "managers/WifiManager.h"
+#include "WifiManager.h"
 
 const char *WifiManager::getWifiStatusString(WiFiStatus status)
 {
@@ -35,11 +35,9 @@ bool WifiManager::begin()
         return false;
     }
 
-    ftmSemaphore = xSemaphoreCreateBinary();
-    WiFi.onEvent(onFtmReport, ARDUINO_EVENT_WIFI_FTM_REPORT);
-
-    WiFi.mode(WIFI_STA);
-    return true;
+    // ftmSemaphore = xSemaphoreCreateBinary();
+    // WiFi.onEvent(onFtmReport, ARDUINO_EVENT_WIFI_FTM_REPORT);
+    return WiFi.mode(WIFI_STA);
 }
 
 bool WifiManager::isConnected()

@@ -1,4 +1,4 @@
-#include "managers/MQTTManager.h"
+#include "MQTTManager.h"
 
 void MQTTManager::handleCallback(char *topic, uint8_t *payload, uint32_t length)
 {

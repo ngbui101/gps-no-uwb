@@ -1,19 +1,19 @@
 #ifndef CONFIG_DEFINES_H
 #define CONFIG_DEFINES_H
 #ifdef TAG
-    #define DEVICE_NAME "UWB_TAG"
+#define DEVICE_NAME "UWB_TAG"
 #elif defined(ANCHOR_1)
-    #define DEVICE_NAME "ANCHOR_1"
+#define DEVICE_NAME "ANCHOR_1"
 #elif defined(ANCHOR_2)
-    #define DEVICE_NAME "ANCHOR_2"
+#define DEVICE_NAME "ANCHOR_2"
 #elif defined(ANCHOR_3)
-    #define DEVICE_NAME "ANCHOR_3"
+#define DEVICE_NAME "ANCHOR_3"
 #endif
 
 #define DEVICE_HEARTBEAT_INTERVAL 60000
 
-#define WIFI_SSID ""
-#define WIFI_PASSWORD ""
+#define WIFI_SSID "TestWlan"
+#define WIFI_PASSWORD "123456789"
 #define WIFI_AUTO_RECONNECT true
 #define WIFI_CHECK_INTERVAL 500
 #define WIFI_RECONNECT_INTERVAL 5000
