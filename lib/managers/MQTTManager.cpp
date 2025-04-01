@@ -1,194 +1,73 @@
 #include "MQTTManager.h"
+#include <cstring>
 
-void MQTTManager::handleCallback(char *topic, uint8_t *payload, uint32_t length)
+void MQTTManager::handleCallback(char *topic, byte *payload, unsigned int length)
 {
+    // Convert payload into a null-terminated string
     char *message = new char[length + 1];
     memcpy(message, payload, length);
     message[length] = '\0';
 
-    char msgBuffer[128];
-    snprintf(msgBuffer, sizeof(msgBuffer), "Received message on topic '%s': '%s'", topic, message);
-    log.debug("MQTTManager", msgBuffer);
-
-    // log.debug("MQTTManager", "Checking subscriptions:");
-    for (const auto &subscription : subscriptions)
-    {
-        char subBuffer[128];
-        snprintf(subBuffer, sizeof(subBuffer), "Checking against subscription: '%s'", subscription.topic.c_str());
-        // log.debug("MQTTManager", subBuffer);
-
-        if (matchTopic(subscription.topic.c_str(), topic))
-        {
-            subscription.callback(topic, payload, length);
-        }
-    }
+    // Log the payload using LogManager
+    LogManager::getInstance().info("MQTTManager", message);
 
     delete[] message;
 }
 
-bool MQTTManager::isSubscribed(const char *topic)
-{
-    for (const Subscription &subscription : subscriptions)
-    {
-        if (subscription.topic == topic)
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool MQTTManager::matchTopic(const char *pattern, const char *topic)
-{
-    while (*pattern && *topic)
-    {
-        if (*pattern == '+')
-        {
-            while (*topic && *topic != '/')
-                topic++;
-            pattern++;
-            if (*topic)
-                topic++;
-            if (*pattern)
-                pattern++;
-            continue;
-        }
-        if (*pattern == '#')
-        {
-            return true;
-        }
-        if (*pattern != *topic)
-            return false;
-        pattern++;
-        topic++;
-    }
-    return *pattern == *topic;
-}
-
 bool MQTTManager::begin()
 {
-    client.setServer(MQTT_BROKER, MQTT_PORT);
-    client.setBufferSize(2048);
-    client.setCallback([this](char *topic, byte *payload, unsigned int length)
-                       { handleCallback(topic, payload, length); });
+    if (_mqttServerIp == nullptr || strlen(_mqttServerIp) == 0)
+    {
+        log.error("MQTTManager", "MQTT broker address is not defined");
+        return false;
+    }
+
+    _mqttClient.setServer(_mqttServerIp, _mqttServerPort);
+    _mqttClient.setBufferSize(2048);
+    _mqttClient.setCallback(handleCallback);
+    // _mqttClient.qoS
+    _mqttClient.setKeepAlive(_keepAlive);
+    log.info("MQTTManager", "MQTT client initialized successfully");
 
     return true;
 }
 
-bool MQTTManager::connect()
+void MQTTManager::connect()
 {
-    if (client.connected())
-        return true;
-
-    bool connectionResult;
-
-    // char msgBuffer[256];
-    // snprintf(msgBuffer, sizeof(msgBuffer), "Attempting to connect to MQTT-Broker '%s' (['%s', %d], ['%s', %d])", MQTT_BROKER, MQTT_USER, strlen(MQTT_USER), MQTT_PASSWORD, strlen(MQTT_PASSWORD));
-    // log.debug("MQTTManager", msgBuffer);
-
-    if (strlen(MQTT_USER) > 0)
+    while (!_mqttClient.connected())
     {
-        connectionResult = client.connect(clientId, MQTT_USER, MQTT_PASSWORD);
-    }
-    else
-    {
-        connectionResult = client.connect(clientId);
-    }
-
-    if (connectionResult)
-    {
-        char msgBuffer[256];
-        snprintf(msgBuffer, sizeof(msgBuffer), "Connected to MQTT broker", MQTT_BROKER);
-        log.info("MQTTManager", msgBuffer);
-        // handleSubscriptions();
-        return true;
-    }
-    else
-    {
-        char msgBuffer[64];
-        snprintf(msgBuffer, sizeof(msgBuffer), "Connection failed, rc=%d", client.state());
-        log.error("MQTTManager", msgBuffer);
-        return false;
+        log.info("MQTTManager", "Attempting MQTT connection....");
+        /// Connect to MQTT Broker
+        if (_mqttClient.connect(_clientId, _mqttUsername, _mqttPassword))
+        {
+            char buffer[128];
+            snprintf(buffer, sizeof(buffer), "Connected to MQTT Broker %s, state: %d", MQTT_BROKER_ADDRESS, _mqttClient.state());
+            log.info("MQTTManager", buffer);
+            // subscribe go hier
+        }
+        else
+        {
+            char buffer[128];
+            snprintf(buffer, sizeof(buffer), "Connection to Broker %s failed, state: %d", MQTT_BROKER_ADDRESS, _mqttClient.state());
+            log.error("MQTTManager", buffer);
+            log.error("MQTTManager", "Trying again in 5 secounds");
+            delay(5000);
+        }
     }
 }
 
 void MQTTManager::disconnect()
 {
-    if (client.connected())
+    if (_mqttClient.connected())
     {
-        client.disconnect();
+        _mqttClient.disconnect();
         log.info("MQTTManager", "Disconnected from MQTT broker");
     }
 }
 
-bool MQTTManager::subscribe(const char *topic, MQTTCallback callback, bool isPersistent)
+bool MQTTManager::publish(const char *topic, const char *payload, bool retain, bool isAbsoluteTopic)
 {
-    for (const auto &subscription : subscriptions)
-    {
-        if (subscription.topic == topic)
-        {
-            log.warning("MQTTManager", "Already subscribed to topic");
-            return false;
-        }
-    }
-
-    subscriptions.push_back({String(topic), callback, isPersistent, false});
-
-    char msgBuffer[128];
-    snprintf(msgBuffer, sizeof(msgBuffer), "Subscribed to topic: %s", topic);
-    log.info("MQTTManager", msgBuffer);
-
-    handleSubscriptions();
-
-    return true;
-}
-
-void MQTTManager::handleSubscriptions()
-{
-    if (!client.connected())
-        return;
-
-    for (auto &subscription : subscriptions)
-    {
-        if (!subscription.isActive)
-        {
-            if (client.subscribe(subscription.topic.c_str()))
-            {
-                subscription.isActive = true;
-            }
-        }
-    }
-}
-
-bool MQTTManager::unsubscribe(const char *topic)
-{
-    if (!client.connected())
-    {
-        log.error("MQTTManager", "MQTT client not connected");
-        return false;
-    }
-
-    if (client.unsubscribe(topic))
-    {
-        subscriptions.erase(
-            std::remove_if(
-                subscriptions.begin(),
-                subscriptions.end(),
-                [topic](const Subscription &subscription)
-                {
-                    return subscription.topic == topic;
-                }),
-            subscriptions.end());
-        return true;
-    }
-
-    return false;
-}
-
-bool MQTTManager::publish(const char *subtopic, const char *payload, bool isRetained, bool isAbsoluteTopic)
-{
-    if (!client.connected())
+    if (!_mqttClient.connected())
     {
         log.error("MQTTManager", "MQTT client not connected");
         return false;
@@ -197,51 +76,62 @@ bool MQTTManager::publish(const char *subtopic, const char *payload, bool isReta
     char fullTopic[512];
     if (isAbsoluteTopic)
     {
-        snprintf(fullTopic, sizeof(fullTopic), "%s", subtopic);
+        snprintf(fullTopic, sizeof(fullTopic), "/%s", topic);
     }
     else
     {
-        snprintf(fullTopic, sizeof(fullTopic), "%s/%s", deviceTopic, subtopic);
+        snprintf(fullTopic, sizeof(fullTopic), "%s/%s", _pubTopic, topic);
     }
 
-    if (client.publish(fullTopic, payload, isRetained))
-        return true;
+    bool success = _mqttClient.publish(fullTopic, payload, retain);
+    if (success)
+    {
+        char logMsg[128];
+        snprintf(logMsg, sizeof(logMsg), "Published message to topic: %s", fullTopic);
+        log.debug("MQTTManager", logMsg);
+    }
+    else
+    {
+        char logMsg[128];
+        snprintf(logMsg, sizeof(logMsg), "Failed to publish message to topic: %s", fullTopic);
+        log.error("MQTTManager", logMsg);
+    }
+    return success;
+}
 
-    Serial.println(payload);
+bool MQTTManager::subscribe(const char *topic, MQTTCallback callback)
+{
+    if (!_mqttClient.connected())
+    {
+        log.error("MQTTManager", "MQTT client not connected");
+        return false;
+    }
 
-    char msgBuffer[128];
-    snprintf(msgBuffer, sizeof(msgBuffer), "Failed to publish message to topic: %s", fullTopic);
-    log.error("MQTTManager", msgBuffer);
-    return false;
+    bool success = _mqttClient.subscribe(topic);
+    if (success)
+    {
+        Subscription sub;
+        sub.topic = topic;
+        sub.callback = callback;
+        _subscriptions.push_back(sub);
+        char logMsg[128];
+        snprintf(logMsg, sizeof(logMsg), "Subscribed to topic: %s", topic);
+        log.info("MQTTManager", logMsg);
+    }
+    else
+    {
+        char logMsg[128];
+        snprintf(logMsg, sizeof(logMsg), "Failed to subscribe to topic: %s", topic);
+        log.error("MQTTManager", logMsg);
+    }
+    return success;
 }
 
 void MQTTManager::update()
 {
-    if (!initialized)
+    if (!_mqttClient.connected())
     {
-        return;
+        connect();
     }
-
-    if (!client.connected())
-    {
-        uint32_t now = millis();
-
-        if (now - lastAttempt >= MQTT_RETRY_INTERVAL)
-        {
-            lastAttempt = now;
-            if (connect())
-            {
-                lastAttempt = 0;
-            }
-        }
-    }
-    else
-    {
-        client.loop();
-    }
-}
-
-bool MQTTManager::isConnected()
-{
-    return client.connected();
+    _mqttClient.loop();
 }
