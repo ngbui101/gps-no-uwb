@@ -1,19 +1,19 @@
 #ifndef CONFIG_DEFINES_H
 #define CONFIG_DEFINES_H
 #ifdef TAG
-    #define DEVICE_NAME "UWB_TAG"
+#define DEVICE_NAME "UWB_TAG"
 #elif defined(ANCHOR_1)
-    #define DEVICE_NAME "ANCHOR_1"
+#define DEVICE_NAME "ANCHOR_1"
 #elif defined(ANCHOR_2)
-    #define DEVICE_NAME "ANCHOR_2"
+#define DEVICE_NAME "ANCHOR_2"
 #elif defined(ANCHOR_3)
-    #define DEVICE_NAME "ANCHOR_3"
+#define DEVICE_NAME "ANCHOR_3"
 #endif
 
 #define DEVICE_HEARTBEAT_INTERVAL 60000
 
-#define WIFI_SSID ""
-#define WIFI_PASSWORD ""
+#define WIFI_SSID "TestWlan1"
+#define WIFI_PASSWORD "123456789test"
 #define WIFI_AUTO_RECONNECT true
 #define WIFI_CHECK_INTERVAL 500
 #define WIFI_RECONNECT_INTERVAL 5000
@@ -21,13 +21,15 @@
 #define WIFI_FTM_FRAME_COUNT 16
 #define WIFI_FTM_BURST_PERIOD 2
 
-#define MQTT_BROKER ""
+#define MQTT_BROKER_ADDRESS "192.168.89.50"
 #define MQTT_PORT 1883
-#define MQTT_USER ""
-#define MQTT_PASSWORD ""
+#define MQTT_USER "test_user"
+#define MQTT_PASSWORD "123456789"
 #define MQTT_RETRY_INTERVAL 5000
 #define MQTT_MAX_CONNECTION_ATTEMPTS 20
-#define MQTT_BASE_TOPIC "gpsno/devices"
+#define MQTT_BASE_TOPIC "device"
+#define MQTT_KEEP_ALIVE 180
+#define MQTT_QOS 0
 
 #define BLUETOOTH_TIMEOUT 5000
 #define BLUETOOTH_MAX_CONNECTIONS 3
