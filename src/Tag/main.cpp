@@ -18,8 +18,5 @@ void setup()
 
 void loop()
 {
-    // Serial.println(count);
-    // count++;
-    // delay(1000);
     Device::getInstance().run_tag();
 }

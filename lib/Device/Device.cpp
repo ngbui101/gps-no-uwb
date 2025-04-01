@@ -2,6 +2,7 @@
 
 bool Device::begin()
 {
+    dwt_setleds(DWT_LEDS_DISABLE);
     // Initialize and connect WiFi
     if (!(wifiManager.begin() && wifiManager.connect()))
     {
