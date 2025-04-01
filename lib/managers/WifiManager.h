@@ -33,25 +33,67 @@ public:
     }
 
     /**
-     * @brief Initialisiert das WLAN und stellt eine Verbindung zum konfigurierten Netzwerk her.
+     * @brief Sets the WiFi module to station mode and disconnects any existing connection.
      *
-     * Diese Methode überprüft zunächst, ob sowohl die SSID als auch das Passwort vorhanden sind.
-     * Ist eine der beiden Angaben leer, wird ein Warn-Log ausgegeben und die Initialisierung mit false abgebrochen.
+     * This method configures the WiFi module by setting it to station mode via WiFi.mode(WIFI_STA)
+     * and then disconnects any current connection using WiFi.disconnect(). It returns the logical
+     * AND of both function calls, indicating success only if both operations return true.
      *
-     * Anschließend wird der WiFi-Modus auf Station (WIFI_STA) gesetzt und eine bestehende Verbindung getrennt.
-     * Mit WiFi.begin() wird versucht, eine Verbindung zum WLAN herzustellen.
-     * Falls WiFi.begin() fehlschlägt, wird ein Fehler geloggt und die Methode gibt false zurück.
-     *
-     * Danach wird in einer Schleife gewartet, bis der Verbindungsstatus WL_CONNECTED erreicht wird.
-     * Es wird ein Timeout von 20 Sekunden definiert. Überschreitet die Wartezeit diesen Wert,
-     * wird die Verbindung als fehlgeschlagen betrachtet, ein Fehler geloggt und false zurückgegeben.
-     *
-     * Bei erfolgreicher Verbindung werden Debug-Logs ausgegeben, die unter anderem die verbundene SSID,
-     * den RSSI-Wert (Signalstärke) und die erhaltene IP-Adresse (als C-String) enthalten.
-     *
-     * @return true, wenn das WLAN erfolgreich verbunden wurde, sonst false.
+     * @return true if both setting the mode and disconnecting are successful, false otherwise.
      */
     bool begin();
+
+    /**
+     * @brief Attempts to connect to the configured WiFi network.
+     *
+     * This method performs several checks and steps:
+     * - It verifies that the configured SSID is non-empty and is found in the scan results using isTargetSSIDFound().
+     *   If the SSID is empty or not found, an error is logged and the method returns false.
+     * - It verifies that a WiFi password is provided. If not, an error is logged and false is returned.
+     * - It attempts to begin the WiFi connection using WiFi.begin() with the provided SSID and password.
+     *   If this call fails, an error is logged and the method returns false.
+     * - It waits up to 60 seconds for the WiFi status to become WL_CONNECTED.
+     *   If the connection is not established within this timeout, an error is logged (suggesting a potential wrong password)
+     *   and the method returns false.
+     * - Once connected, it registers the WiFi event handler (handleWiFiEvent) to handle future WiFi events.
+     *
+     * @return true if the connection is successfully established, otherwise false.
+     */
+    bool connect();
+
+    /**
+     * @brief Extended WiFi event handler to handle various WiFi events.
+     *
+     * This static callback function is invoked when a WiFi event occurs.
+     * It handles multiple events, including:
+     * - SYSTEM_EVENT_WIFI_READY: WiFi interface is ready.
+     * - SYSTEM_EVENT_SCAN_DONE: Scanning for access points is finished.
+     * - SYSTEM_EVENT_STA_START: Station mode has started.
+     * - SYSTEM_EVENT_STA_STOP: Station mode has stopped.
+     * - SYSTEM_EVENT_STA_CONNECTED: Station connected to an access point.
+     * - SYSTEM_EVENT_STA_DISCONNECTED: Station disconnected from an access point.
+     * - SYSTEM_EVENT_STA_AUTHMODE_CHANGE: Authentication mode of the connected AP changed.
+     * - SYSTEM_EVENT_STA_GOT_IP: Station obtained an IP address.
+     * - SYSTEM_EVENT_STA_LOST_IP: Station lost its IP address.
+     *
+     * For each event, an appropriate log message is generated.
+     * In the case of SYSTEM_EVENT_STA_DISCONNECTED, a reconnection attempt is triggered.
+     *
+     * @param event The WiFi event that occurred.
+     */
+    static void handleWiFiEvent(WiFiEvent_t event);
+
+    /**
+     * @brief Checks if the given target SSID is present in the WiFi scan results.
+     *
+     * This method performs a WiFi scan and iterates through the found networks.
+     * If the provided target SSID is found, it returns true; otherwise, it logs a warning
+     * and returns false.
+     *
+     * @param targetSSID The SSID to search for in the scan results.
+     * @return true if the target SSID is found, false otherwise.
+     */
+    bool isTargetSSIDFound(const char *targetSSID);
 };
 
 #endif

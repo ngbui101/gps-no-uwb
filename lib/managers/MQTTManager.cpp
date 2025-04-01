@@ -73,13 +73,13 @@ bool MQTTManager::begin()
         return true;
     }
 
-    // client.setServer(config.mqtt.broker, config.mqtt.port);
+    client.setServer(MQTT_BROKER, MQTT_PORT);
     client.setBufferSize(2048);
     client.setCallback([this](char *topic, byte *payload, unsigned int length)
                        { handleCallback(topic, payload, length); });
 
     initialized = true;
-
+    
     return true;
 }
 
