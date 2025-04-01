@@ -7,15 +7,16 @@ bool Device::begin()
     // Wifi
     if (!(wifiManager.begin() && wifiManager.connect()))
     {
-        logManager.debug("WifiManager", "Failed");
+        logManager.error("WifiManager", "Failed to initialize Wifi, check for ssid&pwd and restart");
         return false;
     }
     if (!(mqttManager.begin() && mqttManager.connect()))
     {
-        logManager.debug("WifiManager", "Failed");
+        logManager.error("MqttManager", "Failed to initialize MQTT. Check the connection and restart");
         return false;
     }
-    mqttManager.publish("/test", "Hello World");
+
+    mqttManager.publish("/test", "Hello from esp32");
     return true;
 }
 

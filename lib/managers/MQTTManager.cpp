@@ -68,37 +68,24 @@ bool MQTTManager::matchTopic(const char *pattern, const char *topic)
 
 bool MQTTManager::begin()
 {
-    if (initialized)
-    {
-        return true;
-    }
-
     client.setServer(MQTT_BROKER, MQTT_PORT);
     client.setBufferSize(2048);
     client.setCallback([this](char *topic, byte *payload, unsigned int length)
                        { handleCallback(topic, payload, length); });
 
-    initialized = true;
-    
     return true;
 }
 
 bool MQTTManager::connect()
 {
-    if (!initialized)
-    {
-        log.error("MQTTManager", "MQTTManager not initialized");
-        return false;
-    }
-
     if (client.connected())
         return true;
 
     bool connectionResult;
 
-    char msgBuffer[256];
-    snprintf(msgBuffer, sizeof(msgBuffer), "Attempting to connect to MQTT-Broker '%s' (['%s', %d], ['%s', %d])", MQTT_BROKER, MQTT_USER, strlen(MQTT_USER), MQTT_PASSWORD, strlen(MQTT_PASSWORD));
-    log.debug("MQTTManager", msgBuffer);
+    // char msgBuffer[256];
+    // snprintf(msgBuffer, sizeof(msgBuffer), "Attempting to connect to MQTT-Broker '%s' (['%s', %d], ['%s', %d])", MQTT_BROKER, MQTT_USER, strlen(MQTT_USER), MQTT_PASSWORD, strlen(MQTT_PASSWORD));
+    // log.debug("MQTTManager", msgBuffer);
 
     if (strlen(MQTT_USER) > 0)
     {
@@ -111,9 +98,10 @@ bool MQTTManager::connect()
 
     if (connectionResult)
     {
-        log.info("MQTTManager", "Connected to MQTT broker");
-        handleSubscriptions();
-
+        char msgBuffer[256];
+        snprintf(msgBuffer, sizeof(msgBuffer), "Connected to MQTT broker", MQTT_BROKER);
+        log.info("MQTTManager", msgBuffer);
+        // handleSubscriptions();
         return true;
     }
     else

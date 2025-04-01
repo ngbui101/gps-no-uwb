@@ -12,8 +12,8 @@
 
 #define DEVICE_HEARTBEAT_INTERVAL 60000
 
-#define WIFI_SSID "TestWlan"
-#define WIFI_PASSWORD "123456789"
+#define WIFI_SSID "TestWlan1"
+#define WIFI_PASSWORD "123456789test"
 #define WIFI_AUTO_RECONNECT true
 #define WIFI_CHECK_INTERVAL 500
 #define WIFI_RECONNECT_INTERVAL 5000
@@ -21,13 +21,13 @@
 #define WIFI_FTM_FRAME_COUNT 16
 #define WIFI_FTM_BURST_PERIOD 2
 
-#define MQTT_BROKER "mathadventure.hs-bochum.de"
+#define MQTT_BROKER "192.168.89.50"
 #define MQTT_PORT 1883
-#define MQTT_USER "gpsno"
-#define MQTT_PASSWORD "S%&n@b5LHnog4tV5"
+#define MQTT_USER "test_user"
+#define MQTT_PASSWORD "123456789"
 #define MQTT_RETRY_INTERVAL 5000
 #define MQTT_MAX_CONNECTION_ATTEMPTS 20
-#define MQTT_BASE_TOPIC "gpsno/devices"
+#define MQTT_BASE_TOPIC "test"
 
 #define BLUETOOTH_TIMEOUT 5000
 #define BLUETOOTH_MAX_CONNECTIONS 3

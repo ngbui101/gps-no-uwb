@@ -10,7 +10,7 @@ bool WifiManager::connect()
 {
     if (strlen(WIFI_SSID) == 0 || !isTargetSSIDFound(WIFI_SSID))
     {
-        log.error("WifiManager", "SSID available");
+        log.error("WifiManager", "SSID not available");
         return false;
     }
     if (strlen(WIFI_PASSWORD) == 0)
@@ -67,7 +67,7 @@ bool WifiManager::isTargetSSIDFound(const char *targetSSID)
 
 void WifiManager::handleWiFiEvent(WiFiEvent_t event)
 {
-    // TODO:
+    // TODO: WiFi reconnection attempt not set.
     switch (event)
     {
     case SYSTEM_EVENT_WIFI_READY:
