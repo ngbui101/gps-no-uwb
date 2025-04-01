@@ -43,7 +43,7 @@ void MQTTManager::connect()
             char buffer[128];
             snprintf(buffer, sizeof(buffer), "Connected to MQTT Broker %s, state: %d", MQTT_BROKER_ADDRESS, _mqttClient.state());
             log.info("MQTTManager", buffer);
-            // subscribe go hier
+            // _mqttClient.subscribe("/test", _qos);
         }
         else
         {
@@ -88,7 +88,7 @@ bool MQTTManager::publish(const char *topic, const char *payload, bool retain, b
     {
         char logMsg[128];
         snprintf(logMsg, sizeof(logMsg), "Published message to topic: %s", fullTopic);
-        log.debug("MQTTManager", logMsg);
+        log.info("MQTTManager", logMsg);
     }
     else
     {
