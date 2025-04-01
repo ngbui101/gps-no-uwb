@@ -1,15 +1,15 @@
-#ifndef DEVICE_H
-#define DEVICE_H
+#ifndef Initiator_H
+#define Initiator_H
 
 #include "LogManager.h"
 #include "MQTTManager.h"
 #include "WifiManager.h"
 #include "dw3000.h"
 
-class Device
+class Initiator
 {
 private:
-    Device(MQTTManager &mqttMgr, LogManager &logMgr, WifiManager &wifiMgr)
+    Initiator(MQTTManager &mqttMgr, LogManager &logMgr, WifiManager &wifiMgr)
         : mqttManager(mqttMgr), logManager(logMgr), wifiManager(wifiMgr)
     {
     }
@@ -19,13 +19,13 @@ private:
     WifiManager &wifiManager;
 
 public:
-    Device(const Device &) = delete;
-    Device &operator=(const Device &) = delete;
-    static Device &getInstance()
+    Initiator(const Initiator &) = delete;
+    Initiator &operator=(const Initiator &) = delete;
+    static Initiator &getInstance()
     {
-        static Device instance(MQTTManager::getInstance(),
-                               LogManager::getInstance(),
-                               WifiManager::getInstance());
+        static Initiator instance(MQTTManager::getInstance(),
+                                  LogManager::getInstance(),
+                                  WifiManager::getInstance());
         return instance;
     }
 
@@ -38,4 +38,4 @@ public:
     void run_anchor(); // receiver
 };
 
-#endif // DEVICE_H
+#endif // Initiator_H

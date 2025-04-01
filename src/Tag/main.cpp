@@ -1,4 +1,4 @@
-#include "Device.h"
+#include "Initiator.h"
 
 int count = 0;
 void setup()
@@ -9,7 +9,7 @@ void setup()
     Serial.print("Device: ");
     Serial.println(DEVICE_NAME);
     delay(1000);
-    if (!Device::getInstance().begin())
+    if (!Initiator::getInstance().begin())
     {
         while (true)
             ;
@@ -18,5 +18,5 @@ void setup()
 
 void loop()
 {
-    Device::getInstance().run_tag();
+    Initiator::getInstance().run_tag();
 }

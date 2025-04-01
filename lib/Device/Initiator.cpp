@@ -1,6 +1,6 @@
-#include "Device.h"
+#include "Initiator.h"
 
-bool Device::begin()
+bool Initiator::begin()
 {
     dwt_setleds(DWT_LEDS_DISABLE);
     // Initialize and connect WiFi
@@ -19,7 +19,7 @@ bool Device::begin()
     return true;
 }
 
-void Device::run_tag()
+void Initiator::run_tag()
 {
     mqttManager.update();
     static unsigned long lastPublishTime = 0;
