@@ -52,10 +52,10 @@
 #define WIFI_FTM_FRAME_COUNT 16
 #define WIFI_FTM_BURST_PERIOD 2
 // MQTT
-#define MQTT_BROKER_ADDRESS "192.168.89.50"
+#define MQTT_BROKER_ADDRESS "test.mosquitto.org"
 #define MQTT_PORT 1883
-#define MQTT_USER "test_user"
-#define MQTT_PASSWORD "123456789"
+#define MQTT_USER ""
+#define MQTT_PASSWORD ""
 #define MQTT_RETRY_INTERVAL 5000
 #define MQTT_MAX_CONNECTION_ATTEMPTS 20
 #define MQTT_BASE_TOPIC "device"
