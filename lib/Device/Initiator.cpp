@@ -2,7 +2,8 @@
 
 bool Initiator::begin()
 {
-    dwt_setleds(DWT_LEDS_DISABLE);
+    // Init UWB module
+    uwbManager.begin();
     // Initialize and connect WiFi
     if (!(wifiManager.begin() && wifiManager.connect()))
     {
@@ -19,18 +20,19 @@ bool Initiator::begin()
     return true;
 }
 
-void Initiator::run_tag()
+void Initiator::runTag()
 {
     mqttManager.update();
     static unsigned long lastPublishTime = 0;
-    static unsigned int counter = 0;
     unsigned long now = millis();
-    // Publish a test message every 5 seconds
-    if (now - lastPublishTime > 5000)
+    // Publish a test message every 1 seconds
+    if (now - lastPublishTime > 1000)
     {
+        double distanz[NUM_DEVS - 1];
+        uwbManager.initiator(&distanz[0]);
         lastPublishTime = now;
         char message[64];
-        snprintf(message, sizeof(message), "Hello from esp32, count: %u", counter++);
+        snprintf(message, sizeof(message), "Distanz %f", distanz[0]);
         mqttManager.publish("test", message, false, false);
     }
 }

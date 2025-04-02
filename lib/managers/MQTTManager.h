@@ -47,9 +47,6 @@ private:
     // Private callback for incoming MQTT messages.
     static void handleCallback(char *topic, byte *payload, unsigned int length);
 
-    // Processes subscriptions, subscribing those not active yet.
-    void handleSubscriptions();
-
     // Privater Konstruktor (Singleton-Muster)
     MQTTManager(const char *mqttServerIp,
                 uint16_t mqttServerPort,
