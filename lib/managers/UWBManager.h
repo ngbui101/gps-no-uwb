@@ -87,4 +87,18 @@ public:
     void responder();
 };
 
+// Gemeinsame Hilfsfunktionen
+uint32_t waitForReceptionEvent(uint32_t eventMask);
+// bool sendTxMessage(uint8_t *msg, uint16_t len, uint32_t txFlags);
+
+// // Initiator-spezifische Funktionen
+// void initiatorSendPoll();
+// void initiatorSendRange();
+// void processInitiatorFinal();
+
+// // Responder-spezifische Funktionen
+// void responderSendAck();
+// void responderSendFinal();
+// void processResponderMessage();
+
 #endif
