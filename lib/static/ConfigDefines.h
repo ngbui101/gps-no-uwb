@@ -1,43 +1,60 @@
 #ifndef CONFIG_DEFINES_H
 #define CONFIG_DEFINES_H
-
+#define DEVICE_NAME "DW3000"
 // UWB
 // total of devices 1 TAG + (NUM_DEVS - 1) ANCHORS, Min 2, max 5
-#define NUM_DEVS 2
-// PIN
-#define UWB_RST 27
-#define UWB_IRQ 34
-#define UWB_SS 4
-// FPS
-#define INTERVAL 10
-// Antenna delay
+#define NUM_NODES 3
+#define INTERVAL 5 /* MAX FPS = 1000 / INTERVAL */
+
+#define U0 0
+#define U1 14
+#define U2 18
+#define U3 22
+#define U4 26
+#define U5 30
+#define U6 34
+
+#ifdef TAG
+#define DEVICE_NAME "TAG"
+#define UID U1
 #define TX_ANT_DLY 16385
 #define RX_ANT_DLY 16385
-// ID
-#define TAG_ID 0
-#define ANCHORID_1 4
-#define ANCHORID_2 8
-#define ANCHORID_3 12
-// Tag
-#ifdef TAG
-#define DEVICE_NAME "UWB_TAG"
-#define UID TAG_ID
-#define QUEUE_NUM 0
-#elif defined(ANCHOR_1)
-#define DEVICE_NAME "ANCHOR_1"
-#define UID ANCHORID_1
-#define QUEUE_NUM_NUM 1
-#elif defined(ANCHOR_2)
-#define DEVICE_NAME "ANCHOR_2"
-#define UID ANCHORID_2
-#define QUEUE_NUM_NUM 2
-#elif defined(ANCHOR_3)
-#define DEVICE_NAME "ANCHOR_3"
-#define UID ANCHORID_3
-#define QUEUE_NUM_NUM 3
+#define WAIT_NUM 0
+#elif defined(ANCHOR_U1)
+#define DEVICE_NAME "ANCHOR_U1"
+#define UID U2
+#define TX_ANT_DLY 16385
+#define RX_ANT_DLY 16385
+#define WAIT_NUM 1
+#elif defined(ANCHOR_U2)
+#define DEVICE_NAME "ANCHOR_U2"
+#define UID U3
+#define TX_ANT_DLY 16385
+#define RX_ANT_DLY 16385
+#define WAIT_NUM 2
+#elif defined(ANCHOR_U3)
+#define DEVICE_NAME "ANCHOR_U3"
+#define UID U4
+#define TX_ANT_DLY 16385
+#define RX_ANT_DLY 16385
+#define WAIT_NUM 3
+#elif defined(ANCHOR_U4)
+#define DEVICE_NAME "ANCHOR_U4"
+#define UID U5
+#define TX_ANT_DLY 16385
+#define RX_ANT_DLY 16385
+#define WAIT_NUM 4
+#elif defined(ANCHOR_U5)
+#define DEVICE_NAME "ANCHOR_U5"
+#define UID U6
+#define TX_ANT_DLY 16385
+#define RX_ANT_DLY 16385
+#define WAIT_NUM 5
 #else
-#define DEVICE_NAME "NULL"
-#define UID TAG_ID
+#define DEVICE_NAME "DEVICE UNKNOWN"
+#define UID U0
+#define TX_ANT_DLY 16385
+#define RX_ANT_DLY 16385
 #define WAIT_NUM 0
 #endif
 
