@@ -93,7 +93,7 @@ bool sendTxMessage(uint8_t *msg, uint16_t len, uint32_t txFlags);
 
 // // Initiator-spezifische Funktionen
 void initiatorSendPoll();
-// void initiatorSendRange();
+void initiatorSendRange();
 // void processInitiatorFinal();
 
 // // Responder-spezifische Funktionen
