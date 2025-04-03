@@ -47,9 +47,6 @@ private:
     // Private callback for incoming MQTT messages.
     static void handleCallback(char *topic, byte *payload, unsigned int length);
 
-    // Processes subscriptions, subscribing those not active yet.
-    void handleSubscriptions();
-
     // Privater Konstruktor (Singleton-Muster)
     MQTTManager(const char *mqttServerIp,
                 uint16_t mqttServerPort,
@@ -73,7 +70,7 @@ private:
         uint64_t chipid = ESP.getEfuseMac();
         snprintf(_clientId, sizeof(_clientId), "%s-%llX", _mqttClientName, chipid);
         snprintf(_pubTopic, sizeof(_pubTopic), "%s/%s", MQTT_BASE_TOPIC, _clientId);
-        snprintf(_subTopic, sizeof(_pubTopic), "%s/%s", "to", _clientId);
+        // snprintf(_subTopic, sizeof(_pubTopic), "%s/%s", "to", _clientId);
         // snprintf(_deviceTopic, sizeof(_deviceTopic), "%s%llX", MQTT_BASE_TOPIC, chipid);
     }
 

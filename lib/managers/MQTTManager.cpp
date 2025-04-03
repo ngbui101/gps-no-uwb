@@ -38,7 +38,19 @@ void MQTTManager::connect()
     {
         log.info("MQTTManager", "Attempting MQTT connection....");
         /// Connect to MQTT Broker
-        if (_mqttClient.connect(_clientId, _mqttUsername, _mqttPassword))
+        bool connected = false;
+
+        // Wenn Username und Passwort leer sind, ohne Authentifizierung verbinden
+        if (strlen(_mqttUsername) == 0 && strlen(_mqttPassword) == 0)
+        {
+            connected = _mqttClient.connect(_clientId);
+        }
+        else
+        {
+            connected = _mqttClient.connect(_clientId, _mqttUsername, _mqttPassword);
+        }
+
+        if (connected)
         {
             char buffer[128];
             snprintf(buffer, sizeof(buffer), "Connected to MQTT Broker %s, state: %d", MQTT_BROKER_ADDRESS, _mqttClient.state());
@@ -51,7 +63,7 @@ void MQTTManager::connect()
             snprintf(buffer, sizeof(buffer), "Connection to Broker %s failed, state: %d", MQTT_BROKER_ADDRESS, _mqttClient.state());
             log.error("MQTTManager", buffer);
             log.error("MQTTManager", "Trying again in 5 secounds");
-            delay(5000);
+            log.delay(5000);
         }
     }
 }
