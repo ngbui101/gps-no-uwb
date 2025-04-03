@@ -5,26 +5,47 @@
 #include "ConfigDefines.h"
 #include "dw3000.h"
 
-const uint8_t MSG_LEN = 16;         // message length
-const uint8_t BUF_LEN = MSG_LEN;    // buffer length
-const uint8_t MSG_SN_IDX = 2;       // sequence number
-const uint8_t MSG_SID_IDX = 7;      // source id
-const uint8_t MSG_FUNC_IDX = 9;     // function code
-const uint8_t MSG_T_REPLY_IDX = 10; // byte index of transmitter timestamp
+#define UWB_RST 27
+#define UWB_IRQ 34
+#define UWB_SS 4
+#define FUNC_CODE_POLL 0xE2
+#define FUNC_CODE_ACK 0xE3
+#define FUNC_CODE_RANGE 0xE4
+#define FUNC_CODE_FINAL 0xE5
+#define FUNC_CODE_RESET 0xE6
 
-constexpr uint16_t TX_TO_RX_DLY_UUS = 100; // delay from transmitter to receiver in microseconds
-constexpr uint16_t RX_TO_TX_DLY_UUS = 800; // delay from receiver to transmitter in microseconds
+#define MSG_LEN 16         /* message length */
+#define BUF_LEN MSG_LEN    /* buffer length */
+#define MSG_SN_IDX 2       /* sequence number */
+#define MSG_SID_IDX 7      /* source id */
+#define MSG_FUNC_IDX 9     /* func code*/
+#define MSG_T_REPLY_IDX 10 /* byte index of transmitter ts */
+#define RESP_MSG_TS_LEN 4
+#define TX_TO_RX_DLY_UUS 100
+#define RX_TO_TX_DLY_UUS 800
+#define RX_TIMEOUT_UUS 400000
 
-// Funktion Codes
-constexpr uint8_t FUNC_CODE_POLL = 0xE2;
-constexpr uint8_t FUNC_CODE_ACK = 0xE3;
-constexpr uint8_t FUNC_CODE_RANGE = 0xE4;
-constexpr uint8_t FUNC_CODE_FINAL = 0xE5;
-constexpr uint8_t FUNC_CODE_RESET = 0xE6;
+extern uint8_t tx_msg[], rx_msg[];
+extern uint8_t frame_seq_nb;
+extern uint8_t rx_buffer[BUF_LEN];
+extern int target_uids[NUM_NODES - 1];
+extern uint32_t status_reg;
+extern bool wait_poll, wait_ack, wait_range, wait_final;
+extern int counter;
+extern int ret;
 
-constexpr uint32_t RX_TIMEOUT_UUS = 400000; // receiver timeout in microseconds
+extern uint64_t poll_tx_ts, poll_rx_ts, range_tx_ts, ack_tx_ts, range_rx_ts;
+extern uint32_t t_reply_1[NUM_NODES - 1];
+extern uint64_t t_reply_2;
+extern uint64_t t_round_1[NUM_NODES - 1];
+extern uint32_t t_round_2[NUM_NODES - 1];
 
-// UWBManager – Singleton zur Steuerung der UWB-Funktionalität
+extern double tof, distance;
+extern unsigned long previous_debug_millis, current_debug_millis;
+extern int millis_since_last_serial_print;
+extern uint32_t tx_time;
+extern uint64_t tx_ts;
+extern float clockOffsetRatioAck, clockOffsetRatioFinal;
 class UWBManager
 {
 private:
@@ -56,7 +77,7 @@ public:
      *
      * Diese Methode kann als Startpunkt für eine UWB-Initiator-Routine verwendet werden.
      */
-    void initiator(double *tofArray);
+    void initiator(float *distances);
 
     /**
      * @brief Führt die Responder-Routine aus.
