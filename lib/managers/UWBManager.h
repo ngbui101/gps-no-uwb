@@ -29,17 +29,17 @@
 extern uint8_t tx_msg[], rx_msg[];
 extern uint8_t frame_seq_nb;
 extern uint8_t rx_buffer[BUF_LEN];
-extern int target_uids[NUM_NODES - 1];
+extern int target_uids[NUM_DW3000 - 1];
 extern uint32_t status_reg;
 extern bool wait_poll, wait_ack, wait_range, wait_final;
 extern int counter;
 extern int ret;
 
 extern uint64_t poll_tx_ts, poll_rx_ts, range_tx_ts, ack_tx_ts, range_rx_ts;
-extern uint32_t t_reply_1[NUM_NODES - 1];
+extern uint32_t t_reply_1[NUM_DW3000 - 1];
 extern uint64_t t_reply_2;
-extern uint64_t t_round_1[NUM_NODES - 1];
-extern uint32_t t_round_2[NUM_NODES - 1];
+extern uint64_t t_round_1[NUM_DW3000 - 1];
+extern uint32_t t_round_2[NUM_DW3000 - 1];
 
 extern double tof, distance;
 extern unsigned long previous_debug_millis, current_debug_millis;
@@ -53,7 +53,7 @@ private:
     // Privater Konstruktor (Singleton)
     UWBManager() : log(LogManager::getInstance()) {}
     LogManager &log;
-    float distances[NUM_NODES - 1];
+    float distances[NUM_DW3000 - 1];
 
 public:
     /**

@@ -37,10 +37,10 @@ int counter = 0;
 int ret;
 
 uint64_t poll_tx_ts, poll_rx_ts, range_tx_ts, ack_tx_ts, range_rx_ts;
-uint32_t t_reply_1[NUM_NODES - 1];
+uint32_t t_reply_1[NUM_DW3000 - 1];
 uint64_t t_reply_2;
-uint64_t t_round_1[NUM_NODES - 1];
-uint32_t t_round_2[NUM_NODES - 1];
+uint64_t t_round_1[NUM_DW3000 - 1];
+uint32_t t_round_2[NUM_DW3000 - 1];
 double tof, distance;
 unsigned long previous_debug_millis = 0;
 unsigned long current_debug_millis = 0;
@@ -48,7 +48,7 @@ int millis_since_last_serial_print;
 uint32_t tx_time;
 uint64_t tx_ts;
 
-int target_uids[NUM_NODES - 1];
+int target_uids[NUM_DW3000 - 1];
 
 void set_target_uids()
 {
@@ -57,7 +57,7 @@ void set_target_uids()
  * U1 - U6 are the target UIDs
  */
 #ifdef TAG
-    switch (NUM_NODES)
+    switch (NUM_DW3000)
     {
     case 6:
         target_uids[4] = U6;
@@ -73,7 +73,7 @@ void set_target_uids()
         break;
     }
 #elif defined(ANCHOR_U1)
-    switch (NUM_NODES)
+    switch (NUM_DW3000)
     {
     case 6:
         target_uids[4] = U6;
@@ -89,7 +89,7 @@ void set_target_uids()
         break;
     }
 #elif defined(ANCHOR_U2)
-    switch (NUM_NODES)
+    switch (NUM_DW3000)
     {
     case 6:
         target_uids[4] = U6;
@@ -105,7 +105,7 @@ void set_target_uids()
         break;
     }
 #elif defined(ANCHOR_U3)
-    switch (NUM_NODES)
+    switch (NUM_DW3000)
     {
     case 6:
         target_uids[4] = U6;
@@ -121,7 +121,7 @@ void set_target_uids()
         break;
     }
 #elif defined(ANCHOR_U4)
-    switch (NUM_NODES)
+    switch (NUM_DW3000)
     {
     case 6:
         target_uids[4] = U6;
@@ -137,7 +137,7 @@ void set_target_uids()
         break;
     }
 #elif defined(ANCHOR_U5)
-    switch (NUM_NODES)
+    switch (NUM_DW3000)
     {
     case 6:
         target_uids[4] = U5;
@@ -263,13 +263,13 @@ void UWBManager::initiator(char *payload)
         return;
     }
     // Übergang vom Poll- zum Range-Modus
-    if (wait_ack && (counter == NUM_NODES - 1))
+    if (wait_ack && (counter == NUM_DW3000 - 1))
     {
         initiatorSendRange();
         return;
     }
     // Verarbeitung der Final-Nachrichten: Distanzberechnung durchführen
-    if (wait_final && (counter == NUM_NODES - 1))
+    if (wait_final && (counter == NUM_DW3000 - 1))
     {
         range_tx_ts = get_tx_timestamp_u64();
         current_debug_millis = millis();
@@ -334,7 +334,7 @@ void UWBManager::responder()
         {
             responderSendAck();
         }
-        if (counter == NUM_NODES - 1)
+        if (counter == NUM_DW3000 - 1)
         {
             // Wechsel in den Range-Modus, wenn alle ACKs empfangen wurden
             counter = 0;
@@ -349,7 +349,7 @@ void UWBManager::responder()
         {
             responderSendFinal();
         }
-        if (counter == NUM_NODES - 1)
+        if (counter == NUM_DW3000 - 1)
         {
             // Alle Final-Nachrichten empfangen: Zurücksetzen für den nächsten Zyklus
             counter = 0;

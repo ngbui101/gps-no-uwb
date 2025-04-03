@@ -2,8 +2,8 @@
 #define CONFIG_DEFINES_H
 #define DEVICE_NAME "DW3000"
 // UWB
-// total of devices 1 TAG + (NUM_DEVS - 1) ANCHORS, Min 2, max 5
-#define NUM_NODES 3
+// total of devices: 1 TAG + (NUM_DW3000 - 1) ANCHORS, Min 2, max 5
+#define NUM_DW3000 3
 #define INTERVAL 5 /* MAX FPS = 1000 / INTERVAL */
 
 #define U0 0
