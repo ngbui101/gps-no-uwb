@@ -99,6 +99,6 @@ void processInitiatorFinal();
 // // Responder-spezifische Funktionen
 void responderSendAck();
 void responderSendFinal();
-// void processResponderMessage();
+void processResponderMessage();
 
 #endif
