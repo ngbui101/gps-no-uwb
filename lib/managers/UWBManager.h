@@ -92,7 +92,7 @@ uint32_t waitForReceptionEvent(uint32_t eventMask);
 bool sendTxMessage(uint8_t *msg, uint16_t len, uint32_t txFlags);
 
 // // Initiator-spezifische Funktionen
-// void initiatorSendPoll();
+void initiatorSendPoll();
 // void initiatorSendRange();
 // void processInitiatorFinal();
 
