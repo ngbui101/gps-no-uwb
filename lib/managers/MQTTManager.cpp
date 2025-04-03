@@ -63,7 +63,7 @@ void MQTTManager::connect()
             snprintf(buffer, sizeof(buffer), "Connection to Broker %s failed, state: %d", MQTT_BROKER_ADDRESS, _mqttClient.state());
             log.error("MQTTManager", buffer);
             log.error("MQTTManager", "Trying again in 5 secounds");
-            delay(5000);
+            log.delay(5000);
         }
     }
 }

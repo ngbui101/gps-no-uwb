@@ -74,3 +74,10 @@ void LogManager::error(const char *source, const char *message)
 {
     log(LogLevel::ERROR, source, message);
 }
+
+void LogManager::delay(unsigned long timeMs)
+{
+    unsigned long startTime = millis();
+    while ((startTime - millis()) < timeMs)
+        ;
+}

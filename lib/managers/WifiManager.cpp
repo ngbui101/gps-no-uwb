@@ -31,11 +31,10 @@ bool WifiManager::connect()
     long start_time = millis();
     while (WiFi.status() != WL_CONNECTED)
     {
-        delay(500);
-        // Serial.print(".");
+        log.delay(500);
+
         if ((millis() - start_time) > time_out)
         {
-            // Serial.println();
             char errorBuffer[128];
             snprintf(errorBuffer, sizeof(errorBuffer), "Connect to %s fail, please check your pwd", WIFI_SSID);
             log.error("WifiManager", errorBuffer);
@@ -95,7 +94,7 @@ void WifiManager::handleWiFiEvent(WiFiEvent_t event)
         else
         {
             LogManager::getInstance().error("WifiManager", "SSID not found retry in 5 Seconds");
-            delay(5000);
+            LogManager::getInstance().delay(5000);
         }
         break;
     }

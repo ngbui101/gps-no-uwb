@@ -46,6 +46,7 @@ public:
     void debug(const char *source, const char *message);
     void setLogLevel(LogLevel level) { logLevel = level; };
 
+    void delay(unsigned long timeMs);
     LogLevel getLogLevel() { return logLevel; };
     const char *getLogLevelString() { return getLogLevelString(logLevel); };
 };

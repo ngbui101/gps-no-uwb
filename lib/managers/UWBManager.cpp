@@ -308,12 +308,12 @@ void UWBManager::initiator(float *distances)
             distance = static_cast<float>(tof * SPEED_OF_LIGHT);
             *distances = distance;
             distances++;
-            // snprintf(dist_str, sizeof(dist_str), "%3.3f m\t", distance);
-            // Serial.print(target_uids[i]);
-            // Serial.print("\t");
-            // Serial.print(dist_str);
+            snprintf(dist_str, sizeof(dist_str), "%3.3f m\t", distance);
+            Serial.print(target_uids[i]);
+            Serial.print("\t");
+            Serial.print(dist_str);
         }
-        // Serial.println();
+        Serial.println();
         previous_debug_millis = current_debug_millis;
         counter = 0;
         wait_ack = false;
