@@ -200,7 +200,7 @@ void UWBManager::begin()
     log.info("UWBManager", msg);
 }
 
-void UWBManager::initiator(float *distances)
+void UWBManager::initiator(char *payload)
 {
     if (!wait_ack && !wait_final && (counter == 0))
     {
@@ -271,7 +271,37 @@ void UWBManager::initiator(float *distances)
     // Verarbeitung der Final-Nachrichten: Distanzberechnung durchführen
     if (wait_final && (counter == NUM_NODES - 1))
     {
-        processInitiatorFinal();
+        range_tx_ts = get_tx_timestamp_u64();
+        current_debug_millis = millis();
+        // Serial.print(current_debug_millis - previous_debug_millis);
+        // Serial.print("ms\t");
+        JsonDocument doc;
+        JsonArray cellsArray = doc["distances"].to<JsonArray>();
+        for (int i = 0; i < counter; i++)
+        {
+            t_reply_2 = range_tx_ts - (t_round_1[i] + poll_tx_ts);
+            tof = (t_round_1[i] * t_round_2[i] - t_reply_1[i] * t_reply_2) /
+                  (t_round_1[i] + t_round_2[i] + t_reply_1[i] + t_reply_2) *
+                  DWT_TIME_UNITS;
+            distance = tof * SPEED_OF_LIGHT;
+            JsonObject nodeObj = cellsArray.add<JsonObject>();
+            nodeObj["node_id"] = target_uids[i];
+            nodeObj["distance_m"] = distance;
+            snprintf(dist_str, sizeof(dist_str), "%3.3f m\t", distance);
+            // Serial.print(target_uids[i]);
+            // Serial.print("\t");
+            // Serial.print(dist_str);
+        }
+        // Serial.println();
+        char buffer[1024];
+        serializeJson(doc, buffer);
+        strcpy(payload, buffer);
+        previous_debug_millis = current_debug_millis;
+        counter = 0;
+        wait_ack = false;
+        wait_final = false;
+        ++frame_seq_nb;
+        Sleep(INTERVAL);
     }
 }
 
@@ -331,6 +361,11 @@ void UWBManager::responder()
     }
 }
 
+float *UWBManager::getDistances()
+{
+    return distances;
+}
+
 // Wartet, bis eines der angegebenen RX-Ereignisse (Nachricht empfangen, Timeout, Fehler)
 // auftritt, und gibt dann den Status zurück.
 uint32_t waitForReceptionEvent(uint32_t eventMask)
@@ -387,35 +422,6 @@ void initiatorSendRange()
     wait_final = true;
     counter = 0;
 }
-
-// Nach Empfang aller Final-Nachrichten wird hier die Distanzberechnung durchgeführt.
-void processInitiatorFinal()
-{
-    range_tx_ts = get_tx_timestamp_u64();
-    current_debug_millis = millis();
-    Serial.print(current_debug_millis - previous_debug_millis);
-    Serial.print("ms\t");
-    for (int i = 0; i < counter; i++)
-    {
-        t_reply_2 = range_tx_ts - (t_round_1[i] + poll_tx_ts);
-        tof = (t_round_1[i] * t_round_2[i] - t_reply_1[i] * t_reply_2) /
-              (t_round_1[i] + t_round_2[i] + t_reply_1[i] + t_reply_2) *
-              DWT_TIME_UNITS;
-        distance = tof * SPEED_OF_LIGHT;
-        snprintf(dist_str, sizeof(dist_str), "%3.3f m\t", distance);
-        Serial.print(target_uids[i]);
-        Serial.print("\t");
-        Serial.print(dist_str);
-    }
-    Serial.println();
-    previous_debug_millis = current_debug_millis;
-    counter = 0;
-    wait_ack = false;
-    wait_final = false;
-    ++frame_seq_nb;
-    Sleep(INTERVAL);
-}
-
 // ===================== Responder-spezifische Funktionen =====================
 
 // Sendet eine ACK-Nachricht als Antwort auf einen Poll.

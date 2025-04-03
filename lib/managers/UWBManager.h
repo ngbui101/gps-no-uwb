@@ -4,6 +4,7 @@
 #include "LogManager.h"
 #include "ConfigDefines.h"
 #include "dw3000.h"
+#include "ArduinoJson.h"
 
 #define UWB_RST 27
 #define UWB_IRQ 34
@@ -52,6 +53,7 @@ private:
     // Privater Konstruktor (Singleton)
     UWBManager() : log(LogManager::getInstance()) {}
     LogManager &log;
+    float distances[NUM_NODES - 1];
 
 public:
     /**
@@ -77,7 +79,7 @@ public:
      *
      * Diese Methode kann als Startpunkt für eine UWB-Initiator-Routine verwendet werden.
      */
-    void initiator(float *distances);
+    void initiator(char *payload);
 
     /**
      * @brief Führt die Responder-Routine aus.
@@ -85,6 +87,8 @@ public:
      * Diese Methode kann als Startpunkt für eine UWB-Responder-Routine verwendet werden.
      */
     void responder();
+
+    float *getDistances();
 };
 
 // Gemeinsame Hilfsfunktionen
@@ -94,7 +98,6 @@ bool sendTxMessage(uint8_t *msg, uint16_t len, uint32_t txFlags);
 // // Initiator-spezifische Funktionen
 void initiatorSendPoll();
 void initiatorSendRange();
-void processInitiatorFinal();
 
 // // Responder-spezifische Funktionen
 void responderSendAck();
